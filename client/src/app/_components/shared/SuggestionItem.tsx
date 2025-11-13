@@ -3,13 +3,14 @@ import { ArrowRight } from "lucide-react";
 import { SuggesstionIcon } from "./SugesstionIcon";
 import { getTypeColor } from "@/utilis";
 import { highlightMatch } from "./HighLightText";
+import { SearchSuggestion } from "@/types";
 
 interface SuggestionItemProps {
-  suggestion: Suggestion;
+  suggestion: SearchSuggestion;
   index: number;
   isSelected: boolean;
   debouncedValue: string;
-  onClick: (suggestion: Suggestion) => void;
+  onClick: (suggestion: SearchSuggestion) => void;
   onHover: (index: number) => void;
 }
 
@@ -22,9 +23,9 @@ export const SuggestionItem = ({
   onHover,
 }: SuggestionItemProps) => {
   const text =
-    suggestion.type === "Category" || suggestion.type === "Instructor"
-      ? suggestion.value.name
-      : suggestion.value.title;
+    suggestion.type === "category" || suggestion.type === "instructor"
+      ? suggestion.subtitle
+      : suggestion.subtitle;
 
   if (!text) return null;
 
@@ -37,11 +38,11 @@ export const SuggestionItem = ({
       }`}
       initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{duration: .4 ,  delay: index * 0.3 }}
+      transition={{ duration: 0.4, delay: index * 0.3 }}
     >
       <SuggesstionIcon
         type={suggestion.type}
-        avatarUrl={suggestion.value.avatarUrl}
+        // avatarUrl={suggestion.id.avatarUrl}
       />
 
       <div className="flex-1 min-w-0">
@@ -56,16 +57,7 @@ export const SuggestionItem = ({
             {suggestion.type}
           </span>
 
-          {suggestion.type === "Course" && suggestion.value.rating && (
-            <>
-              <span className="text-white/50">•</span>
-              <span className="text-xs text-main-blue">
-                ★ {suggestion.value.rating.toFixed(1)}
-              </span>
-            </>
-          )}
-
-          {suggestion.type === "Category" &&
+          {/* {suggestion.type === "Category" &&
             suggestion.value.courseCount !== undefined && (
               <>
                 <span className="text-gray-400">•</span>
@@ -83,7 +75,7 @@ export const SuggestionItem = ({
                   {suggestion.value.studentsCount.toLocaleString()} students
                 </span>
               </>
-            )}
+            )} */}
         </div>
       </div>
 

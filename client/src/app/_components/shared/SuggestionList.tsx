@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import { SuggestionItem } from "./SuggestionItem";
-
+import { SearchSuggestion } from "@/types";
 
 interface SuggestionsListProps {
-  suggestions: Suggestion[];
+  suggestions: SearchSuggestion[];
   selectedIndex: number;
   debouncedValue: string;
   query: string;
-  onSuggestionClick: (suggestion: Suggestion) => void;
+  onSuggestionClick: (suggestion: SearchSuggestion) => void;
   onHover: (index: number) => void;
   onSearch: (e: React.FormEvent) => void;
 }
@@ -27,7 +27,7 @@ export const SuggestionsList = ({
       <div className="py-2">
         {suggestions.map((suggestion, index) => (
           <SuggestionItem
-            key={`${suggestion.type}-${suggestion.value.id}`}
+            key={`${suggestion.type}-${suggestion.id}`}
             suggestion={suggestion}
             index={index}
             isSelected={selectedIndex === index}

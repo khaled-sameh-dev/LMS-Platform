@@ -976,6 +976,7 @@ export interface Course {
   category: Category;
   sections?: Section[];
   totalChapters?: number;
+  enrollments: Enrollment[];
 }
 
 export interface ChapterProgress {
