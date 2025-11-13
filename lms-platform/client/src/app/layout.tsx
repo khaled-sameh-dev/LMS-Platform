@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Provider } from "react-redux";
-import { store } from "@/state/store";
-import { Providers } from "@/state/Providers";
+import { Providers } from "@/store/Providers";
+import Footer from "@/app/_components/shared/Footer";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +25,45 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const enableClerk = process.env.NEXT_PUBLIC_ENABLE_CLERK === "true";
+  const hasClerkKey = typeof clerkKey === "string" && clerkKey.length > 0;
+  const looksValid =
+    hasClerkKey && clerkKey.startsWith("pk_") && !clerkKey.includes("dummy");
+  const shouldEnableClerk = enableClerk && looksValid;
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary-blue`}
       >
-        <Providers>{children}</Providers>
+        <ClerkProvider
+          appearance={{
+            variables: {
+              colorPrimary: "#5b8def", // main-blue
+              colorBackground: "#1b1c22", // primary-blue
+              colorInputBackground: "#25262f", // secondary-blue
+              colorInputText: "#ffffff",
+              colorText: "#ffffff",
+
+              colorTextSecondary: "#6e6e6e", // dirty-grey
+            },
+            elements: {
+              formButtonPrimary: "bg-main-blue hover:bg-main-blue/80",
+              card: "bg-secondary-blue border border-white/10",
+              headerTitle: "text-white",
+              headerSubtitle: "text-dirty-grey",
+              socialButtonsBlockButton:
+                "bg-primary-blue border-white/10 text-white hover:bg-white/5",
+              socialButtonsProviderIcon: "text-white",
+
+              formFieldInput: "bg-primary-blue border-white/10 text-white",
+              footerActionLink: "text-main-blue hover:text-main-blue/80",
+            },
+          }}
+        >
+          <Providers>{children}</Providers>
+        </ClerkProvider>
+        <Footer />
       </body>
     </html>
   );

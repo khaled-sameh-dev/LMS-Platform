@@ -5,6 +5,7 @@ const router  = express.Router()
 
 
 router.get("/" , courseController.getCourses)
+router.get("/:id" , courseController.getCourse)
 
 
 

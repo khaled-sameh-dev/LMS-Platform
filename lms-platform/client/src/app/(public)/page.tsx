@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "../_components/ui/button";
+import { Skeleton } from "../_components/ui/skeleton";
 import Image from "next/image";
 import useCarousel from "@/hooks/useCarousel";
-import { useGetCoursesQuery } from "@/state/api";
+import { useGetCoursesQuery } from "@/store/api";
 import CourseCard from "./_components/CourseCard";
 
 export const LoadingSkeleton = () => {
@@ -36,7 +36,7 @@ const Page = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="mx-6 sm:w-3/4 flex flex-col justify-center items-center gap-20"
+      className="w-full flex flex-col justify-center items-center gap-20"
     >
       {/* Hero Section */}
       <motion.section
@@ -46,7 +46,7 @@ const Page = () => {
         className="w-full bg-secondry-blue rounded-lg shadow-xs flex items-center flex-col sm:flex-row h-[500px] mt-10 overflow-hidden"
       >
         <div className="basis-1/2 flex flex-col justify-center items-center sm:items-start  px-10 py-12">
-          <h1 className="text-2xl md:text-4xl font-bold mb-4">Courses</h1>
+          <h1 className="text-2xl md:text-4xl font-bold mb-4">Explor Our Courses</h1>
           <p className="text-sm md:text-base mb-2 text-dirty-grey font-semibold max-w-3xs">
             Explore our wide range of courses and find the perfect one to boost
           </p>
@@ -105,16 +105,16 @@ const Page = () => {
               </button>
             ))}
           </div>
-          {/* Course Cards */}
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="w-full grid gap-4 sm:gap-5 md:gap-6 lg:gap-7 xl:gap-8 py-6 sm:py-8 grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4">
             {courses &&
-              courses.map((course, index) => (
+              courses.slice(0, 4).map((course, index) => (
                 <motion.div
-                  key={index}
+                  key={course.id || index}
                   initial={{ y: 20, opacity: 0 }}
                   whileInView={{ y: 0, opacity: 1 }}
-                  transition={{ delay: index * 0.2, duration: 0.4 }}
-                  viewport={{ amount: 0.3, once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                  viewport={{ amount: 0.2, once: true }}
+                  className="h-full"
                 >
                   <CourseCard course={course} />
                 </motion.div>

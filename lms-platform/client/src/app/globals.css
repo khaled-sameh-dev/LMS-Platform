@@ -45,7 +45,8 @@
   /* custom colors */
   --color-primary-blue: #1b1c22;
   --color-dirty-grey: #6e6e6e;
-  --color-secondry-blue: #25262F;
+  --color-secondry-blue: #25262f;
+  --color-main-blue: oklch(61.415% 0.13274 237.902);
 }
 
 :root {
@@ -115,6 +116,23 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }
 
 @layer base {

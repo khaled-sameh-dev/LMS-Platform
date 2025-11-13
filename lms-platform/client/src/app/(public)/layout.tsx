@@ -1,21 +1,17 @@
-import Footer from "@/components/shared/Footer";
-import NonDashboardNavbar from "@/components/shared/NonDashboardNavbar";
+import NonDashboardNavbar from "@/app/_components/shared/Navbar";
 import { ReactNode } from "react";
-
 
 const layout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen flex flex-col bg-primary-blue text-white">
-      <NonDashboardNavbar />
-
-      <main className="flex w-full h-full justify-center items-center">
+    <div className="min-h-screen flex flex-col text-white bg-primary-blue">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 sm:px-8 py-6">
+        <NonDashboardNavbar />
+      </div>
+      <main className="flex-1 w-full max-w-7xl mx-auto px-6 sm:px-8 py-6">
         {children}
       </main>
-
-      <Footer />
     </div>
   );
 };
-
 
 export default layout;

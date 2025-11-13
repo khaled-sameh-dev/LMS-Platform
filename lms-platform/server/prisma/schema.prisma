@@ -1,14 +1,22 @@
 
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
-  useLibraryImports = true
 }
 
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+// ===========================================
+// ENUMS
+// ===========================================
+
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
 }
 
 enum CourseLevel {
@@ -17,109 +25,391 @@ enum CourseLevel {
   ADVANCED
 }
 
-model Course{
-  id String @id @default(uuid()) @map("_id")
-  title String
-  description String
-  imageUrl String
-  price Float
-  level CourseLevel @default(BEGINNER)
-  isPublished Boolean @default(false)
-  isFree Boolean @default(true)
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
 
-  teacher Teacher? @relation(fields: [teacherId] , references: [id])
-  teacherId String?
+enum ChapterType {
+  VIDEO
+  ARTICLE
+  QUIZ
+  ASSIGNMENT
+}
 
-  category Category? @relation(fields: [categoryId], references: [id])
-  categoryId String?
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
 
-  sections Section[]
+enum PaymentType {
+  CARD
+  PAYPAL
+  BANK_TRANSFER
+}
 
-  enrollments Enrollment[]
+enum NotificationType {
+  COURSE_ENROLLMENT
+  COURSE_UPDATE
+  CHAPTER_COMPLETED
+  CERTIFICATE_EARNED
+  PAYMENT_SUCCESS
+  NEW_REVIEW
+  COURSE_PUBLISHED
+  NEW_STUDENT
+  MESSAGE
+  SYSTEM
+}
 
+// ===========================================
+// USER MODEL
+// ===========================================
+
+model User {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  email        String       @unique
+  password     String
+  firstName    String
+  lastName     String
+  avatar       String?
+  role         UserRole     @default(STUDENT)
+  bio          String?
+  title        String?
+  socialLinks  Json?
+  isActive     Boolean      @default(true)
+  emailVerified Boolean     @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relations
+  coursesCreated   Course[]         @relation("InstructorCourses")
+  enrollments      Enrollment[]
+  reviews          CourseReview[]
+  notifications    Notification[]
+  payments         PaymentHistory[]
+  paymentMethods   PaymentMethod[]
+  chapterProgress  ChapterProgress[]
+  certificates     Certificate[]
+
+  @@index([role])
+  @@map("users")
+}
+
+// ===========================================
+// CATEGORY MODEL
+// ===========================================
+
+model Category {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  slug         String    @unique
+  icon         String?
+  description  String?
+  order        Int       @default(0)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  courses      Course[]
+
+  @@map("categories")
+}
+
+// ===========================================
+// COURSE MODEL
+// ===========================================
+
+model Course {
+  id               String        @id @default(auto()) @map("_id") @db.ObjectId
+  title            String
+  slug             String        @unique
+  description      String
+  thumbnail        String
+  previewVideo     String?
+  level            CourseLevel   @default(BEGINNER)
+  price            Float         @default(0)
+  currency         String        @default("USD")
+  language         String        @default("English")
+  rating           Float         @default(0)
+  reviewsCount     Int           @default(0)
+  studentsCount    Int           @default(0)
+  status           CourseStatus  @default(DRAFT)
+  isFeatured       Boolean       @default(false)
+  isBestseller     Boolean       @default(false)
+  requirements     String[]
+  learningOutcomes String[]
+  tags             String[]
+  duration         Float         @default(0) // Total duration in minutes
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  publishedAt      DateTime?
+
+  // Relations
+  instructor       User          @relation("InstructorCourses", fields: [instructorId], references: [id], onDelete: Cascade)
+  instructorId     String        @db.ObjectId
+
+  category         Category      @relation(fields: [categoryId], references: [id])
+  categoryId       String        @db.ObjectId
+
+  sections         Section[]
+  reviews          CourseReview[]
+  enrollments      Enrollment[]
+  payments         PaymentHistory[]
+  certificates     Certificate[]
+
+  @@index([instructorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([level])
+  @@map("courses")
+}
+
+// ===========================================
+// SECTION MODEL
+// ===========================================
+
+model Section {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String?
+  order       Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  course      Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId    String     @db.ObjectId
+
+  chapters    Chapter[]
+
+  @@index([courseId])
+  @@map("sections")
+}
+
+// ===========================================
+// CHAPTER MODEL
+// ===========================================
+
+model Chapter {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  description   String?
+  order         Int
+  type          ChapterType    @default(VIDEO)
+  duration      Float          @default(0) // Duration in minutes
+  isFree        Boolean        @default(false)
+  
+  // Content fields based on type
+  videoUrl      String?
+  articleContent String?
+  quizQuestions  Json?
+  assignmentDetails Json?
+  
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  section       Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  sectionId     String         @db.ObjectId
+
+  resources     ChapterResource[]
+  progress      ChapterProgress[]
+
+  @@index([sectionId])
+  @@map("chapters")
+}
+
+// ===========================================
+// CHAPTER RESOURCE MODEL
+// ===========================================
+
+model ChapterResource {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      String   // pdf | video | link | file
+  url       String
+  size      Int?     // File size in bytes
+  createdAt DateTime @default(now())
+
+  chapter   Chapter  @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId String   @db.ObjectId
+
+  @@index([chapterId])
+  @@map("chapter_resources")
+}
+
+// ===========================================
+// CHAPTER PROGRESS MODEL
+// ===========================================
+
+model ChapterProgress {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  isCompleted     Boolean   @default(false)
+  watchedDuration Float     @default(0) // Watched duration in minutes
+  lastWatchedAt   DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String    @db.ObjectId
+
+  chapter         Chapter   @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  chapterId       String    @db.ObjectId
+
+  enrollment      Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  enrollmentId    String     @db.ObjectId
+
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([chapterId])
+  @@index([enrollmentId])
+  @@map("chapter_progress")
+}
+
+// ===========================================
+// COURSE REVIEW MODEL
+// ===========================================
+
+model CourseReview {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  rating    Int
+  comment   String
+  isApproved Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @db.ObjectId
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  String   @db.ObjectId
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("course_reviews")
 }
 
+// ===========================================
+// ENROLLMENT MODEL
+// ===========================================
 
-model Category{
-  id String @id @default(uuid()) @map("_id")
-  name String
-  slug String @unique
-  courses Course[]
+model Enrollment {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  progressPercentage   Float    @default(0)
+  totalTimeSpent       Int      @default(0) // Total time in minutes
+  isCompleted          Boolean  @default(false)
+  lastAccessedAt       DateTime @default(now())
+  completedAt          DateTime?
+  enrolledAt           DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               String   @db.ObjectId
+
+  course               Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId             String   @db.ObjectId
+
+  chapterProgress      ChapterProgress[]
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("enrollments")
 }
 
-model Teacher{
-  id String @id @default(uuid()) @map("_id")
-  name String
-  bio String
-  avatarUrl String
-  courses Course[]
+// ===========================================
+// CERTIFICATE MODEL
+// ===========================================
+
+model Certificate {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  certificateNumber String @unique
+  issuedAt        DateTime @default(now())
+  expiresAt       DateTime?
+  certificateUrl  String?
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String   @db.ObjectId
+
+  course          Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId        String   @db.ObjectId
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("certificates")
 }
 
-model Student{
-  id String @id @default(uuid()) @map("_id")
-  name String
-  email String @unique
-  avatarUrl String
+// ===========================================
+// PAYMENT METHOD MODEL
+// ===========================================
 
-  enrollments Enrollment[]
+model PaymentMethod {
+  id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  type         PaymentType
+  last4        String?
+  brand        String?      // Visa, Mastercard, etc.
+  expiryMonth  Int?
+  expiryYear   Int?
+  isDefault    Boolean      @default(false)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String       @db.ObjectId
+
+  @@index([userId])
+  @@map("payment_methods")
 }
 
-model Section{
-  id String @id @default(uuid()) @map("_id")
-  title String
-  description String
-  order Int
+// ===========================================
+// PAYMENT HISTORY MODEL
+// ===========================================
 
-  course Course @relation(fields: [courseId], references: [id])
-  courseId String
+model PaymentHistory {
+  id             String         @id @default(auto()) @map("_id") @db.ObjectId
+  amount         Float
+  currency       String         @default("USD")
+  status         PaymentStatus  @default(PENDING)
+  transactionId  String         @unique
+  paymentMethod  String
+  paidAt         DateTime
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  chapters Chapter[]
-  ceatedAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String         @db.ObjectId
+
+  course         Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId       String         @db.ObjectId
+
+  @@index([userId])
+  @@index([courseId])
+  @@map("payment_history")
 }
 
-model Chapter{
-  id String @id @default(uuid()) @map("_id")
-  title String
-  description String
-  order Int
+// ===========================================
+// NOTIFICATION MODEL
+// ===========================================
 
-  videoUrl String?
-  duration Float?
+model Notification {
+  id         String           @id @default(auto()) @map("_id") @db.ObjectId
+  type       NotificationType
+  title      String
+  message    String
+  data       Json?
+  isRead     Boolean          @default(false)
+  createdAt  DateTime         @default(now())
 
-  content String?
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String           @db.ObjectId
 
-  section Section @relation(fields: [sectionId], references: [id])
-  sectionId String
-
-  attachments Attachment[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-} 
-
-model Attachment{
-  id String @id @default(uuid()) @map("_id")
-  filename String
-  url String
-  type String
-
-  chapter Chapter? @relation(fields: [chapterId], references: [id])
-  chapterId String?
-}
-
-
-
-model Enrollment{
-  id String @id @default(uuid()) @map("_id")
-  enrolledAt DateTime @default(now())
-  progress Float @default(0.0)
-  completed Boolean @default(false)
-
-  student Student? @relation(fields: [studentId] , references: [id])
-  studentId String?
-
-  course Course? @relation(fields: [courseId] , references: [id])
-  courseId String?
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
 }
