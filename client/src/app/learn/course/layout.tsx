@@ -14,9 +14,9 @@ export default function LearnLayout({ children }: LearnLayoutProps) {
     <div className="min-h-screen bg-primary-blue flex flex-col">
       <LearnCourseHeader/>
 
-      {/* Main Content Area */}
+     
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
+      
         <LearnCourseSidebar />
 
         {/* Content Area */}
