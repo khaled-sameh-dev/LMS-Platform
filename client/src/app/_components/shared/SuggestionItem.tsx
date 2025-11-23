@@ -4,6 +4,7 @@ import { SuggesstionIcon } from "./SugesstionIcon";
 import { getTypeColor } from "@/utilis";
 import { highlightMatch } from "./HighLightText";
 import { SearchSuggestion } from "@/types";
+import { useEffect, useMemo } from "react";
 
 interface SuggestionItemProps {
   suggestion: SearchSuggestion;
@@ -22,10 +23,19 @@ export const SuggestionItem = ({
   onClick,
   onHover,
 }: SuggestionItemProps) => {
-  const text =
-    suggestion.type === "category" || suggestion.type === "instructor"
-      ? suggestion.subtitle
-      : suggestion.subtitle;
+  const text = useMemo(() => {
+    const value =
+      suggestion.type === "Category"
+        ? suggestion.value.name
+        : suggestion.type === "Course"
+          ? suggestion.value.title
+          : suggestion.value.firstName + " " + suggestion.value.lastName;
+    return value;
+  }, [suggestion]);
+
+  useEffect(() => {
+    console.log("suggestions", text);
+  }, [text]);
 
   if (!text) return null;
 

@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
   output   = "../src/generated/prisma"
@@ -65,15 +64,15 @@ enum NotificationType {
 }
 
 // ===========================================
-// USER MODEL
+// USER MODEL (Clerk Integrated)
 // ===========================================
 
 model User {
   id           String       @id @default(auto()) @map("_id") @db.ObjectId
+  clerkId      String       @unique // Clerk user ID
   email        String       @unique
-  password     String
-  firstName    String
-  lastName     String
+  firstName    String?
+  lastName     String?
   avatar       String?
   role         UserRole     @default(STUDENT)
   bio          String?
@@ -81,6 +80,10 @@ model User {
   socialLinks  Json?
   isActive     Boolean      @default(true)
   emailVerified Boolean     @default(false)
+  
+  // Clerk metadata
+  clerkMetadata Json?       // Store additional Clerk metadata if needed
+  
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 

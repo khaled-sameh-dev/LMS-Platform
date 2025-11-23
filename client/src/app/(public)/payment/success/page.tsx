@@ -77,7 +77,7 @@ const PaymentSuccessPage = () => {
     <div className="min-h-screen bg-primary-blue flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         {/* Success Animation */}
-        <div className="bg-secondary-blue rounded-lg p-8 text-center space-y-6">
+        <div className="bg-secondry-blue rounded-lg p-8 text-center space-y-6">
           <div className="w-20 h-20 bg-success/20 rounded-full flex items-center justify-center mx-auto animate-fade-in">
             <CheckCircle className="w-12 h-12 text-success" />
           </div>
@@ -96,12 +96,7 @@ const PaymentSuccessPage = () => {
               <span className="text-dirty-grey">Status</span>
               <span className="text-success font-semibold">Completed</span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-dirty-grey">Session ID</span>
-              <span className="text-white text-sm font-mono">
-                {sessionId?.slice(-8)}
-              </span>
-            </div>
+            
           </div>
 
           <div className="space-y-3 pt-4">

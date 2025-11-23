@@ -1,18 +1,13 @@
 import { ReactNode } from "react";
-import Sidebar from "../(protected)/_components/Sidebar";
-import DashboardHeader from "../(protected)/_components/DashboardHeader";
-import Navbar from "../_components/shared/Navbar";
+import SimplifiedSidebar from "./_components/Sidebar";
 
-const Layout = ({ children }: { children: ReactNode }) => {
+export default function ProtectedLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen">
-      <Sidebar userRole="student" />
-
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
-      </div>
+    <div className="flex min-h-screen bg-primary-blue">
+      <SimplifiedSidebar />
+      <main className="flex-1 overflow-y-auto">
+        <div className="container mx-auto p-6 lg:p-8">{children}</div>
+      </main>
     </div>
   );
-};
-
-export default Layout;
+}

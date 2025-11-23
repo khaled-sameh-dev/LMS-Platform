@@ -1,7 +1,8 @@
 import { Router } from "express";
-import type { Request , Response } from "express";
-import { authenticateToken, optionalAuth } from "../missleware/auth";
+import type { Request, Response } from "express";
+// import { authenticateToken, optionalAuth } from "../middleware/auth";
 import { prisma } from "../config/db";
+import { optionalAuth, requireAuth } from "../middleware/clerkAuth";
 
 const router = Router();
 
@@ -51,15 +52,15 @@ router.get("/course/:courseId", optionalAuth, async (req, res) => {
 });
 
 // Create review (authenticated)
-router.post("/", authenticateToken, async (req: Request, res: Response) => {
+router.post("/", requireAuth, async (req: Request, res: Response) => {
   try {
     const { courseId, rating, comment } = req.body;
 
-    if (!req.user) {
+    if (!req.auth?.userId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const userId = req.user.id;
+    const userId = req.auth.userId;
 
     // Check if user is enrolled
     const enrollment = await prisma.enrollment.findUnique({

@@ -1,12 +1,21 @@
-import { PrismaClient } from '../src/generated/prisma';
-import * as bcrypt from 'bcryptjs';
+import "dotenv/config";
+import {
+  ChapterType,
+  CourseLevel,
+  CourseStatus,
+  NotificationType,
+  PaymentStatus,
+  PaymentType,
+  PrismaClient,
+  UserRole,
+} from "../src/generated/prisma";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting seed...');
+  console.log("🌱 Starting seed...");
 
-  // Clean existing data
+  // Clean existing data (optional - comment out if you want to keep existing data)
   await prisma.notification.deleteMany();
   await prisma.paymentHistory.deleteMany();
   await prisma.paymentMethod.deleteMany();
@@ -21,777 +30,908 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.user.deleteMany();
 
-  console.log('🗑️  Cleaned existing data');
+  console.log("🗑️  Cleaned existing data");
 
-  // Hash password for all users
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // ===========================================
+  // USERS
+  // ===========================================
 
-  // ===================================
-  // Create Users
-  // ===================================
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@lms.com',
-      password: hashedPassword,
-      firstName: 'Admin',
-      lastName: 'User',
-      role: 'ADMIN',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=admin',
-      bio: 'Platform Administrator',
-      title: 'LMS Administrator',
+      clerkId: "user_admin_clerk_001",
+      email: "admin@lms.com",
+      firstName: "Admin",
+      lastName: "User",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
+      role: UserRole.ADMIN,
+      bio: "Platform administrator with full access",
+      title: "System Administrator",
       emailVerified: true,
-      socialLinks: {
-        website: 'https://lms-platform.com',
-        linkedin: 'https://linkedin.com/in/admin'
-      }
-    }
+    },
   });
 
   const instructor1 = await prisma.user.create({
     data: {
-      email: 'john.doe@instructor.com',
-      password: hashedPassword,
-      firstName: 'John',
-      lastName: 'Doe',
-      role: 'INSTRUCTOR',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=john',
-      bio: 'Full-stack developer with 10+ years of experience. Passionate about teaching web development and helping students achieve their goals.',
-      title: 'Senior Full-Stack Developer',
-      emailVerified: true,
+      clerkId: "user_clerk_instructor_001",
+      email: "john.doe@lms.com",
+      firstName: "John",
+      lastName: "Doe",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+      role: UserRole.INSTRUCTOR,
+      bio: "Full-stack developer with 10+ years of experience. Passionate about teaching web development and software engineering best practices.",
+      title: "Senior Software Engineer",
       socialLinks: {
-        website: 'https://johndoe.dev',
-        linkedin: 'https://linkedin.com/in/johndoe',
-        github: 'https://github.com/johndoe',
-        twitter: 'https://twitter.com/johndoe'
-      }
-    }
+        twitter: "https://twitter.com/johndoe",
+        linkedin: "https://linkedin.com/in/johndoe",
+        github: "https://github.com/johndoe",
+      },
+      emailVerified: true,
+    },
   });
 
   const instructor2 = await prisma.user.create({
     data: {
-      email: 'sarah.smith@instructor.com',
-      password: hashedPassword,
-      firstName: 'Sarah',
-      lastName: 'Smith',
-      role: 'INSTRUCTOR',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=sarah',
-      bio: 'AI/ML Engineer and Data Scientist. Love teaching machine learning and helping others break into the field.',
-      title: 'AI/ML Engineer',
-      emailVerified: true,
+      clerkId: "user_clerk_instructor_002",
+      email: "sarah.smith@lms.com",
+      firstName: "Sarah",
+      lastName: "Smith",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+      role: UserRole.INSTRUCTOR,
+      bio: "UI/UX designer and frontend specialist. Love creating beautiful and accessible user interfaces.",
+      title: "Lead UI/UX Designer",
       socialLinks: {
-        website: 'https://sarahsmith.ai',
-        linkedin: 'https://linkedin.com/in/sarahsmith',
-        github: 'https://github.com/sarahsmith'
-      }
-    }
+        twitter: "https://twitter.com/sarahsmith",
+        linkedin: "https://linkedin.com/in/sarahsmith",
+        website: "https://sarahsmith.design",
+      },
+      emailVerified: true,
+    },
   });
 
   const instructor3 = await prisma.user.create({
     data: {
-      email: 'mike.wilson@instructor.com',
-      password: hashedPassword,
-      firstName: 'Mike',
-      lastName: 'Wilson',
-      role: 'INSTRUCTOR',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=mike',
-      bio: 'UX/UI Designer with a passion for creating beautiful and intuitive user experiences.',
-      title: 'Senior UX/UI Designer',
+      clerkId: "user_clerk_instructor_003",
+      email: "mike.johnson@lms.com",
+      firstName: "Mike",
+      lastName: "Johnson",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
+      role: UserRole.INSTRUCTOR,
+      bio: "Data scientist and machine learning expert. Teaching AI and data analysis for 5+ years.",
+      title: "Data Science Lead",
       emailVerified: true,
-      socialLinks: {
-        website: 'https://mikewilson.design',
-        linkedin: 'https://linkedin.com/in/mikewilson'
-      }
-    }
+    },
   });
 
   const students = await Promise.all([
     prisma.user.create({
       data: {
-        email: 'alice@student.com',
-        password: hashedPassword,
-        firstName: 'Alice',
-        lastName: 'Johnson',
-        role: 'STUDENT',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=alice',
-        bio: 'Aspiring web developer',
-        emailVerified: true
-      }
+        clerkId: "user_clerk_student_001",
+        email: "alice.wonder@student.com",
+        firstName: "Alice",
+        lastName: "Wonder",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
+        role: UserRole.STUDENT,
+        bio: "Aspiring full-stack developer",
+        emailVerified: true,
+      },
     }),
     prisma.user.create({
       data: {
-        email: 'bob@student.com',
-        password: hashedPassword,
-        firstName: 'Bob',
-        lastName: 'Williams',
-        role: 'STUDENT',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=bob',
-        bio: 'Learning data science',
-        emailVerified: true
-      }
+        clerkId: "user_clerk_student_002",
+        email: "bob.builder@student.com",
+        firstName: "Bob",
+        lastName: "Builder",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
+        role: UserRole.STUDENT,
+        emailVerified: true,
+      },
     }),
     prisma.user.create({
       data: {
-        email: 'carol@student.com',
-        password: hashedPassword,
-        firstName: 'Carol',
-        lastName: 'Brown',
-        role: 'STUDENT',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=carol',
-        bio: 'UI/UX enthusiast',
-        emailVerified: true
-      }
+        clerkId: "user_clerk_student_003",
+        email: "charlie.brown@student.com",
+        firstName: "Charlie",
+        lastName: "Brown",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
+        role: UserRole.STUDENT,
+        emailVerified: true,
+      },
     }),
     prisma.user.create({
       data: {
-        email: 'david@student.com',
-        password: hashedPassword,
-        firstName: 'David',
-        lastName: 'Miller',
-        role: 'STUDENT',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=david',
-        emailVerified: true
-      }
+        clerkId: "user_clerk_student_004",
+        email: "diana.prince@student.com",
+        firstName: "Diana",
+        lastName: "Prince",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diana",
+        role: UserRole.STUDENT,
+        emailVerified: true,
+      },
     }),
     prisma.user.create({
       data: {
-        email: 'emma@student.com',
-        password: hashedPassword,
-        firstName: 'Emma',
-        lastName: 'Davis',
-        role: 'STUDENT',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=emma',
-        emailVerified: true
-      }
-    })
+        clerkId: "user_clerk_student_005",
+        email: "evan.thomas@student.com",
+        firstName: "Evan",
+        lastName: "Thomas",
+        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Evan",
+        role: UserRole.STUDENT,
+        emailVerified: false,
+      },
+    }),
   ]);
 
-  console.log('✅ Created users');
+  console.log("✅ Created users");
 
-  // ===================================
-  // Create Categories
-  // ===================================
+  // ===========================================
+  // CATEGORIES
+  // ===========================================
+
   const categories = await Promise.all([
     prisma.category.create({
       data: {
-        name: 'Web Development',
-        slug: 'web-development',
-        icon: '💻',
-        description: 'Learn to build modern websites and web applications',
-        order: 1
-      }
+        name: "Web Development",
+        slug: "web-development",
+        icon: "💻",
+        description: "Learn modern web development technologies and frameworks",
+        order: 1,
+      },
     }),
     prisma.category.create({
       data: {
-        name: 'Data Science',
-        slug: 'data-science',
-        icon: '📊',
-        description: 'Master data analysis, machine learning, and AI',
-        order: 2
-      }
+        name: "Mobile Development",
+        slug: "mobile-development",
+        icon: "📱",
+        description: "Build native and cross-platform mobile applications",
+        order: 2,
+      },
     }),
     prisma.category.create({
       data: {
-        name: 'Design',
-        slug: 'design',
-        icon: '🎨',
-        description: 'Create beautiful and intuitive user experiences',
-        order: 3
-      }
+        name: "Data Science",
+        slug: "data-science",
+        icon: "📊",
+        description: "Master data analysis, machine learning, and AI",
+        order: 3,
+      },
     }),
     prisma.category.create({
       data: {
-        name: 'Mobile Development',
-        slug: 'mobile-development',
-        icon: '📱',
-        description: 'Build native and cross-platform mobile apps',
-        order: 4
-      }
+        name: "Design",
+        slug: "design",
+        icon: "🎨",
+        description: "UI/UX design, graphic design, and visual creativity",
+        order: 4,
+      },
     }),
     prisma.category.create({
       data: {
-        name: 'Business',
-        slug: 'business',
-        icon: '💼',
-        description: 'Develop business and entrepreneurship skills',
-        order: 5
-      }
-    })
+        name: "Business",
+        slug: "business",
+        icon: "💼",
+        description: "Business strategy, marketing, and entrepreneurship",
+        order: 5,
+      },
+    }),
   ]);
 
-  console.log('✅ Created categories');
+  console.log("✅ Created categories");
 
-  // ===================================
-  // Create Courses
-  // ===================================
+  // ===========================================
+  // COURSES
+  // ===========================================
+
   const course1 = await prisma.course.create({
     data: {
-      title: 'Complete Web Development Bootcamp 2024',
-      slug: 'complete-web-development-bootcamp-2024',
-      description: 'Learn HTML, CSS, JavaScript, React, Node.js, and more. Build real-world projects and become a full-stack web developer.',
-      thumbnail: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800',
-      previewVideo: 'https://www.youtube.com/watch?v=demo1',
-      level: 'BEGINNER',
-      price: 89.99,
-      currency: 'USD',
-      language: 'English',
+      title: "Complete React & Next.js Development Course",
+      slug: "complete-react-nextjs-course",
+      description:
+        "Master modern React and Next.js development from scratch. Build real-world applications with the latest features including Server Components, App Router, and more.",
+      thumbnail:
+        "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800",
+      previewVideo: "https://example.com/preview1.mp4",
+      level: CourseLevel.INTERMEDIATE,
+      price: 79.99,
+      currency: "USD",
+      language: "English",
       rating: 4.8,
-      reviewsCount: 1250,
-      studentsCount: 15420,
-      status: 'PUBLISHED',
+      reviewsCount: 0,
+      studentsCount: 0,
+      status: CourseStatus.PUBLISHED,
       isFeatured: true,
       isBestseller: true,
       requirements: [
-        'Basic computer skills',
-        'No prior programming experience required',
-        'A computer with internet connection'
+        "Basic JavaScript knowledge",
+        "Understanding of HTML and CSS",
+        "Familiarity with ES6+ syntax",
       ],
       learningOutcomes: [
-        'Build responsive websites with HTML, CSS, and JavaScript',
-        'Master React and build modern single-page applications',
-        'Create backend APIs with Node.js and Express',
-        'Work with databases like MongoDB',
-        'Deploy your applications to the cloud'
+        "Build modern React applications with hooks",
+        "Master Next.js 14 App Router",
+        "Implement server-side rendering",
+        "Create full-stack applications",
+        "Deploy to production",
       ],
-      tags: ['HTML', 'CSS', 'JavaScript', 'React', 'Node.js', 'MongoDB'],
-      duration: 3240, // 54 hours
+      tags: ["React", "Next.js", "JavaScript", "Web Development"],
+      duration: 1200,
+      publishedAt: new Date("2024-01-15"),
       instructorId: instructor1.id,
       categoryId: categories[0].id,
-      publishedAt: new Date('2024-01-15')
-    }
+    },
   });
 
   const course2 = await prisma.course.create({
     data: {
-      title: 'Machine Learning A-Z: Python & AI',
-      slug: 'machine-learning-python-ai',
-      description: 'Master Machine Learning with Python. Includes all the code templates. Learn to create ML algorithms in Python and R from expert instructors.',
-      thumbnail: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800',
-      previewVideo: 'https://www.youtube.com/watch?v=demo2',
-      level: 'INTERMEDIATE',
-      price: 99.99,
-      currency: 'USD',
-      language: 'English',
+      title: "UI/UX Design Masterclass: Figma to Production",
+      slug: "uiux-design-masterclass",
+      description:
+        "Learn professional UI/UX design from concept to implementation. Master Figma, design systems, and modern design principles.",
+      thumbnail:
+        "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800",
+      previewVideo: "https://example.com/preview2.mp4",
+      level: CourseLevel.BEGINNER,
+      price: 59.99,
+      currency: "USD",
+      language: "English",
       rating: 4.9,
-      reviewsCount: 2150,
-      studentsCount: 25600,
-      status: 'PUBLISHED',
+      reviewsCount: 0,
+      studentsCount: 0,
+      status: CourseStatus.PUBLISHED,
       isFeatured: true,
-      isBestseller: true,
       requirements: [
-        'Basic Python programming knowledge',
-        'High school level mathematics',
-        'Interest in data science and AI'
+        "No prior design experience needed",
+        "Computer with internet connection",
+        "Figma account (free)",
       ],
       learningOutcomes: [
-        'Master Machine Learning algorithms',
-        'Build AI models with TensorFlow and PyTorch',
-        'Understand deep learning and neural networks',
-        'Work with real-world datasets',
-        'Deploy ML models to production'
+        "Master Figma design tools",
+        "Create professional mockups",
+        "Build design systems",
+        "Understand UX principles",
+        "Prototype interactions",
       ],
-      tags: ['Python', 'Machine Learning', 'AI', 'Deep Learning', 'TensorFlow'],
-      duration: 4320, // 72 hours
+      tags: ["UI/UX", "Figma", "Design", "Prototyping"],
+      duration: 900,
+      publishedAt: new Date("2024-02-01"),
       instructorId: instructor2.id,
-      categoryId: categories[1].id,
-      publishedAt: new Date('2024-02-01')
-    }
+      categoryId: categories[3].id,
+    },
   });
 
   const course3 = await prisma.course.create({
     data: {
-      title: 'UI/UX Design Masterclass',
-      slug: 'ui-ux-design-masterclass',
-      description: 'Learn UI/UX Design from scratch. Master Figma, Adobe XD, and design thinking principles to create stunning user interfaces.',
-      thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800',
-      previewVideo: 'https://www.youtube.com/watch?v=demo3',
-      level: 'BEGINNER',
-      price: 79.99,
-      currency: 'USD',
-      language: 'English',
+      title: "Python for Data Science & Machine Learning",
+      slug: "python-data-science-ml",
+      description:
+        "Complete guide to data science and machine learning with Python. Learn pandas, NumPy, scikit-learn, and TensorFlow.",
+      thumbnail:
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800",
+      level: CourseLevel.ADVANCED,
+      price: 99.99,
+      currency: "USD",
+      language: "English",
       rating: 4.7,
-      reviewsCount: 850,
-      studentsCount: 8900,
-      status: 'PUBLISHED',
-      isFeatured: true,
+      reviewsCount: 0,
+      studentsCount: 0,
+      status: CourseStatus.PUBLISHED,
+      isBestseller: true,
       requirements: [
-        'No prior design experience needed',
-        'A computer with Figma installed',
-        'Creativity and passion for design'
+        "Python programming basics",
+        "Understanding of mathematics",
+        "Basic statistics knowledge",
       ],
       learningOutcomes: [
-        'Master Figma and Adobe XD',
-        'Understand UX research and user testing',
-        'Create wireframes and prototypes',
-        'Design mobile and web applications',
-        'Build a professional design portfolio'
+        "Analyze data with pandas and NumPy",
+        "Build ML models with scikit-learn",
+        "Create neural networks with TensorFlow",
+        "Visualize data effectively",
+        "Deploy ML models",
       ],
-      tags: ['UI Design', 'UX Design', 'Figma', 'Adobe XD', 'Prototyping'],
-      duration: 2160, // 36 hours
+      tags: ["Python", "Machine Learning", "Data Science", "AI"],
+      duration: 1800,
+      publishedAt: new Date("2024-01-20"),
       instructorId: instructor3.id,
       categoryId: categories[2].id,
-      publishedAt: new Date('2024-02-15')
-    }
+    },
   });
 
   const course4 = await prisma.course.create({
     data: {
-      title: 'React Native - Complete Mobile App Development',
-      slug: 'react-native-mobile-app-development',
-      description: 'Build iOS and Android apps with React Native. Learn to create beautiful, performant mobile applications.',
-      thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800',
-      level: 'INTERMEDIATE',
-      price: 94.99,
-      currency: 'USD',
-      language: 'English',
+      title: "Mobile App Development with React Native",
+      slug: "react-native-mobile-dev",
+      description:
+        "Build cross-platform mobile apps for iOS and Android using React Native and Expo.",
+      thumbnail:
+        "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800",
+      level: CourseLevel.INTERMEDIATE,
+      price: 69.99,
+      currency: "USD",
+      language: "English",
       rating: 4.6,
-      reviewsCount: 620,
-      studentsCount: 5400,
-      status: 'PUBLISHED',
+      reviewsCount: 0,
+      studentsCount: 0,
+      status: CourseStatus.PUBLISHED,
       requirements: [
-        'JavaScript fundamentals',
-        'Basic React knowledge',
-        'A Mac for iOS development (optional)'
+        "React fundamentals",
+        "JavaScript ES6+",
+        "Basic mobile app concepts",
       ],
       learningOutcomes: [
-        'Build cross-platform mobile apps',
-        'Master React Native components',
-        'Implement navigation and state management',
-        'Work with device APIs',
-        'Publish apps to App Store and Play Store'
+        "Build native mobile apps",
+        "Use React Native components",
+        "Integrate native features",
+        "Publish to App Stores",
+        "Implement navigation",
       ],
-      tags: ['React Native', 'Mobile Development', 'iOS', 'Android', 'JavaScript'],
-      duration: 2880, // 48 hours
+      tags: ["React Native", "Mobile", "iOS", "Android"],
+      duration: 1000,
+      publishedAt: new Date("2024-02-10"),
       instructorId: instructor1.id,
-      categoryId: categories[3].id,
-      publishedAt: new Date('2024-03-01')
-    }
+      categoryId: categories[1].id,
+    },
   });
 
   const course5 = await prisma.course.create({
     data: {
-      title: 'Python for Beginners - Complete Programming Course',
-      slug: 'python-for-beginners',
-      description: 'Start your programming journey with Python. Learn the fundamentals and build real projects.',
-      thumbnail: 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=800',
-      level: 'BEGINNER',
-      price: 0, // Free course
-      currency: 'USD',
-      language: 'English',
+      title: "TypeScript: From Beginner to Expert",
+      slug: "typescript-beginner-to-expert",
+      description:
+        "Master TypeScript and write type-safe JavaScript applications. Perfect for developers wanting to level up their skills.",
+      thumbnail:
+        "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=800",
+      level: CourseLevel.BEGINNER,
+      price: 49.99,
+      currency: "USD",
+      language: "English",
       rating: 4.5,
-      reviewsCount: 3200,
-      studentsCount: 45000,
-      status: 'PUBLISHED',
-      isFeatured: false,
+      reviewsCount: 0,
+      studentsCount: 0,
+      status: CourseStatus.DRAFT,
       requirements: [
-        'No programming experience needed',
-        'A computer with Python installed'
+        "Basic JavaScript knowledge",
+        "Understanding of programming concepts",
       ],
       learningOutcomes: [
-        'Understand Python syntax and basics',
-        'Work with data structures',
-        'Write functions and modules',
-        'Handle files and exceptions',
-        'Build simple Python projects'
+        "Understand TypeScript syntax",
+        "Use advanced types",
+        "Configure TypeScript projects",
+        "Integrate with React and Node.js",
       ],
-      tags: ['Python', 'Programming', 'Beginner', 'Coding'],
-      duration: 1440, // 24 hours
-      instructorId: instructor2.id,
+      tags: ["TypeScript", "JavaScript", "Web Development"],
+      duration: 600,
+      instructorId: instructor1.id,
       categoryId: categories[0].id,
-      publishedAt: new Date('2024-01-10')
-    }
+    },
   });
 
-  console.log('✅ Created courses');
+  console.log("✅ Created courses");
 
-  // ===================================
-  // Create Sections and Chapters
-  // ===================================
-  
-  // Course 1 Sections & Chapters
-  const section1 = await prisma.section.create({
+  // ===========================================
+  // SECTIONS & CHAPTERS
+  // ===========================================
+
+  // Course 1 Sections
+  const course1Section1 = await prisma.section.create({
     data: {
-      title: 'Introduction to Web Development',
-      description: 'Get started with web development fundamentals',
+      title: "Getting Started with React",
+      description: "Introduction to React and modern JavaScript",
       order: 1,
-      courseId: course1.id
-    }
+      courseId: course1.id,
+    },
   });
 
   await Promise.all([
     prisma.chapter.create({
       data: {
-        title: 'Welcome to the Course',
-        description: 'Course overview and what you will learn',
+        title: "Course Introduction",
+        description: "Welcome to the course! Let's get started.",
         order: 1,
-        type: 'VIDEO',
+        type: ChapterType.VIDEO,
+        duration: 10,
+        isFree: true,
+        videoUrl: "https://example.com/videos/intro.mp4",
+        sectionId: course1Section1.id,
+      },
+    }),
+    prisma.chapter.create({
+      data: {
+        title: "Setting Up Your Development Environment",
+        description: "Install Node.js, VS Code, and necessary extensions",
+        order: 2,
+        type: ChapterType.VIDEO,
+        duration: 25,
+        isFree: true,
+        videoUrl: "https://example.com/videos/setup.mp4",
+        sectionId: course1Section1.id,
+      },
+    }),
+    prisma.chapter.create({
+      data: {
+        title: "React Fundamentals Quiz",
+        description: "Test your knowledge of React basics",
+        order: 3,
+        type: ChapterType.QUIZ,
+        duration: 15,
+        quizQuestions: {
+          questions: [
+            {
+              question: "What is JSX?",
+              options: [
+                "JavaScript XML",
+                "Just XML",
+                "Java Syntax Extension",
+                "None",
+              ],
+              correctAnswer: 0,
+            },
+            {
+              question: "Which hook is used for state management?",
+              options: ["useEffect", "useState", "useContext", "useReducer"],
+              correctAnswer: 1,
+            },
+          ],
+        },
+        sectionId: course1Section1.id,
+      },
+    }),
+  ]);
+
+  const course1Section2 = await prisma.section.create({
+    data: {
+      title: "React Hooks Deep Dive",
+      description: "Master React hooks and state management",
+      order: 2,
+      courseId: course1.id,
+    },
+  });
+
+  const chapter1 = await prisma.chapter.create({
+    data: {
+      title: "Understanding useState Hook",
+      description: "Learn how to manage component state with useState",
+      order: 1,
+      type: ChapterType.VIDEO,
+      duration: 35,
+      videoUrl: "https://example.com/videos/usestate.mp4",
+      sectionId: course1Section2.id,
+    },
+  });
+
+  await prisma.chapterResource.createMany({
+    data: [
+      {
+        name: "useState Cheat Sheet",
+        type: "pdf",
+        url: "https://example.com/resources/usestate-cheatsheet.pdf",
+        size: 1024000,
+        chapterId: chapter1.id,
+      },
+      {
+        name: "Code Examples",
+        type: "file",
+        url: "https://example.com/resources/usestate-examples.zip",
+        size: 2048000,
+        chapterId: chapter1.id,
+      },
+    ],
+  });
+
+  await prisma.chapter.create({
+    data: {
+      title: "useEffect and Side Effects",
+      description: "Manage side effects in your React components",
+      order: 2,
+      type: ChapterType.VIDEO,
+      duration: 40,
+      videoUrl: "https://example.com/videos/useeffect.mp4",
+      sectionId: course1Section2.id,
+    },
+  });
+
+  await prisma.chapter.create({
+    data: {
+      title: "Build a Todo App",
+      description: "Apply what you've learned by building a todo application",
+      order: 3,
+      type: ChapterType.ASSIGNMENT,
+      duration: 60,
+      assignmentDetails: {
+        instructions:
+          "Build a todo app with add, delete, and complete functionality",
+        dueDate: null,
+        maxScore: 100,
+      },
+      sectionId: course1Section2.id,
+    },
+  });
+
+  // Course 2 Sections
+  const course2Section1 = await prisma.section.create({
+    data: {
+      title: "Introduction to UI/UX Design",
+      description: "Learn the fundamentals of design",
+      order: 1,
+      courseId: course2.id,
+    },
+  });
+
+  await Promise.all([
+    prisma.chapter.create({
+      data: {
+        title: "What is UI/UX Design?",
+        description: "Understanding the difference between UI and UX",
+        order: 1,
+        type: ChapterType.VIDEO,
         duration: 15,
         isFree: true,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section1.id
-      }
+        videoUrl: "https://example.com/videos/uiux-intro.mp4",
+        sectionId: course2Section1.id,
+      },
     }),
     prisma.chapter.create({
       data: {
-        title: 'Setting Up Your Development Environment',
-        description: 'Install all necessary tools and software',
+        title: "Design Principles",
+        description: "Core principles every designer should know",
         order: 2,
-        type: 'VIDEO',
-        duration: 30,
-        isFree: true,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section1.id
-      }
+        type: ChapterType.ARTICLE,
+        duration: 20,
+        articleContent:
+          "# Design Principles\n\n## 1. Balance\nBalance creates visual stability...",
+        sectionId: course2Section1.id,
+      },
     }),
-    prisma.chapter.create({
-      data: {
-        title: 'HTML Basics Quiz',
-        description: 'Test your HTML knowledge',
-        order: 3,
-        type: 'QUIZ',
-        duration: 10,
-        isFree: false,
-        quizQuestions: [
-          {
-            id: '1',
-            question: 'What does HTML stand for?',
-            options: [
-              'Hyper Text Markup Language',
-              'High Tech Modern Language',
-              'Home Tool Markup Language',
-              'Hyperlinks and Text Markup Language'
-            ],
-            correctAnswer: 0,
-            explanation: 'HTML stands for Hyper Text Markup Language'
-          }
-        ],
-        sectionId: section1.id
-      }
-    })
   ]);
 
-  const section2 = await prisma.section.create({
-    data: {
-      title: 'HTML & CSS Fundamentals',
-      description: 'Learn HTML and CSS from scratch',
-      order: 2,
-      courseId: course1.id
-    }
-  });
+  console.log("✅ Created sections and chapters");
 
-  await Promise.all([
-    prisma.chapter.create({
-      data: {
-        title: 'HTML Elements and Tags',
-        description: 'Understanding HTML structure',
-        order: 1,
-        type: 'VIDEO',
-        duration: 45,
-        isFree: false,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section2.id
-      }
-    }),
-    prisma.chapter.create({
-      data: {
-        title: 'CSS Styling Basics',
-        description: 'Learn to style your web pages',
-        order: 2,
-        type: 'VIDEO',
-        duration: 60,
-        isFree: false,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section2.id
-      }
-    })
-  ]);
+  // ===========================================
+  // ENROLLMENTS & PROGRESS
+  // ===========================================
 
-  // Course 2 Sections & Chapters
-  const section3 = await prisma.section.create({
-    data: {
-      title: 'Python for Machine Learning',
-      description: 'Essential Python concepts for ML',
-      order: 1,
-      courseId: course2.id
-    }
-  });
-
-  await Promise.all([
-    prisma.chapter.create({
-      data: {
-        title: 'Python Crash Course',
-        order: 1,
-        type: 'VIDEO',
-        duration: 90,
-        isFree: true,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section3.id
-      }
-    }),
-    prisma.chapter.create({
-      data: {
-        title: 'NumPy and Pandas',
-        order: 2,
-        type: 'VIDEO',
-        duration: 120,
-        isFree: false,
-        videoUrl: 'https://www.youtube.com/watch?v=demo',
-        sectionId: section3.id
-      }
-    })
-  ]);
-
-  console.log('✅ Created sections and chapters');
-
-  // ===================================
-  // Create Enrollments
-  // ===================================
   const enrollment1 = await prisma.enrollment.create({
     data: {
       userId: students[0].id,
       courseId: course1.id,
-      progressPercentage: 45,
-      totalTimeSpent: 780,
-      lastAccessedAt: new Date()
-    }
+      progressPercentage: 35,
+      totalTimeSpent: 180,
+      lastAccessedAt: new Date(),
+    },
   });
 
   const enrollment2 = await prisma.enrollment.create({
     data: {
-      userId: students[0].id,
-      courseId: course2.id,
-      progressPercentage: 20,
-      totalTimeSpent: 320,
-      lastAccessedAt: new Date()
-    }
-  });
-
-  const enrollment3 = await prisma.enrollment.create({
-    data: {
       userId: students[1].id,
-      courseId: course2.id,
-      progressPercentage: 80,
-      totalTimeSpent: 1920,
-      lastAccessedAt: new Date()
-    }
-  });
-
-  const enrollment4 = await prisma.enrollment.create({
-    data: {
-      userId: students[2].id,
-      courseId: course3.id,
-      progressPercentage: 100,
-      totalTimeSpent: 2160,
-      isCompleted: true,
-      completedAt: new Date('2024-10-15'),
-      lastAccessedAt: new Date('2024-10-15')
-    }
+      courseId: course1.id,
+      progressPercentage: 60,
+      totalTimeSpent: 420,
+      lastAccessedAt: new Date(Date.now() - 86400000), // 1 day ago
+    },
   });
 
   await prisma.enrollment.create({
     data: {
+      userId: students[2].id,
+      courseId: course2.id,
+      progressPercentage: 100,
+      totalTimeSpent: 900,
+      isCompleted: true,
+      completedAt: new Date("2024-03-01"),
+      lastAccessedAt: new Date("2024-03-01"),
+    },
+  });
+
+  await prisma.enrollment.create({
+    data: {
+      userId: students[0].id,
+      courseId: course3.id,
+      progressPercentage: 15,
+      totalTimeSpent: 120,
+      lastAccessedAt: new Date(Date.now() - 172800000), // 2 days ago
+    },
+  });
+
+  // Chapter Progress
+  await prisma.chapterProgress.create({
+    data: {
+      userId: students[0].id,
+      chapterId: chapter1.id,
+      enrollmentId: enrollment1.id,
+      isCompleted: true,
+      watchedDuration: 35,
+      completedAt: new Date(),
+      lastWatchedAt: new Date(),
+    },
+  });
+
+  await prisma.chapterProgress.create({
+    data: {
+      userId: students[1].id,
+      chapterId: chapter1.id,
+      enrollmentId: enrollment2.id,
+      isCompleted: true,
+      watchedDuration: 35,
+      completedAt: new Date(Date.now() - 86400000),
+      lastWatchedAt: new Date(Date.now() - 86400000),
+    },
+  });
+
+  // Update course student counts
+  await prisma.course.update({
+    where: { id: course1.id },
+    data: { studentsCount: 2 },
+  });
+
+  await prisma.course.update({
+    where: { id: course2.id },
+    data: { studentsCount: 1 },
+  });
+
+  await prisma.course.update({
+    where: { id: course3.id },
+    data: { studentsCount: 1 },
+  });
+
+  console.log("✅ Created enrollments and progress");
+
+  // ===========================================
+  // REVIEWS
+  // ===========================================
+
+  await prisma.courseReview.create({
+    data: {
+      userId: students[0].id,
+      courseId: course1.id,
+      rating: 5,
+      comment:
+        "Excellent course! The instructor explains everything clearly and the projects are very practical. Highly recommended!",
+    },
+  });
+
+  await prisma.courseReview.create({
+    data: {
       userId: students[1].id,
       courseId: course1.id,
-      progressPercentage: 15,
-      totalTimeSpent: 240,
-      lastAccessedAt: new Date()
-    }
+      rating: 4,
+      comment:
+        "Great content and well-structured. Would have liked more advanced topics, but overall very satisfied.",
+    },
   });
 
-  console.log('✅ Created enrollments');
+  await prisma.courseReview.create({
+    data: {
+      userId: students[2].id,
+      courseId: course2.id,
+      rating: 5,
+      comment:
+        "Best design course I've taken! The Figma tutorials are top-notch and the design principles are explained beautifully.",
+    },
+  });
 
-  // ===================================
-  // Create Reviews
-  // ===================================
-  await Promise.all([
-    prisma.courseReview.create({
-      data: {
-        rating: 5,
-        comment: 'Excellent course! Very comprehensive and well-structured. The instructor explains everything clearly.',
-        userId: students[0].id,
-        courseId: course1.id,
-        isApproved: true
-      }
-    }),
-    prisma.courseReview.create({
-      data: {
-        rating: 4,
-        comment: 'Great content, but some videos could be shorter. Overall very satisfied with my learning.',
-        userId: students[1].id,
-        courseId: course2.id,
-        isApproved: true
-      }
-    }),
-    prisma.courseReview.create({
-      data: {
-        rating: 5,
-        comment: 'This course transformed my design skills! Highly recommend to anyone interested in UI/UX.',
-        userId: students[2].id,
-        courseId: course3.id,
-        isApproved: true
-      }
-    }),
-    prisma.courseReview.create({
-      data: {
-        rating: 5,
-        comment: 'Best programming course I have taken. Clear explanations and great projects!',
-        userId: students[3].id,
-        courseId: course1.id,
-        isApproved: true
-      }
-    })
-  ]);
+  // Update course ratings
+  await prisma.course.update({
+    where: { id: course1.id },
+    data: { rating: 4.5, reviewsCount: 2 },
+  });
 
-  console.log('✅ Created reviews');
+  await prisma.course.update({
+    where: { id: course2.id },
+    data: { rating: 5.0, reviewsCount: 1 },
+  });
 
-  // ===================================
-  // Create Certificates
-  // ===================================
+  console.log("✅ Created reviews");
+
+  // ===========================================
+  // CERTIFICATES
+  // ===========================================
+
   await prisma.certificate.create({
     data: {
-      certificateNumber: 'CERT-2024-001',
       userId: students[2].id,
-      courseId: course3.id,
-      issuedAt: new Date('2024-10-15'),
-      certificateUrl: 'https://certificates.lms.com/cert-001.pdf'
-    }
+      courseId: course2.id,
+      certificateNumber: "CERT-2024-001",
+      issuedAt: new Date("2024-03-01"),
+      certificateUrl: "https://example.com/certificates/cert-001.pdf",
+    },
   });
 
-  console.log('✅ Created certificates');
+  console.log("✅ Created certificates");
 
-  // ===================================
-  // Create Payment Methods
-  // ===================================
-  await Promise.all([
-    prisma.paymentMethod.create({
-      data: {
-        type: 'CARD',
-        last4: '4242',
-        brand: 'Visa',
-        expiryMonth: 12,
-        expiryYear: 2025,
-        isDefault: true,
-        userId: students[0].id
-      }
-    }),
-    prisma.paymentMethod.create({
-      data: {
-        type: 'CARD',
-        last4: '5555',
-        brand: 'Mastercard',
-        expiryMonth: 6,
-        expiryYear: 2026,
-        isDefault: true,
-        userId: students[1].id
-      }
-    })
-  ]);
+  // ===========================================
+  // PAYMENT METHODS
+  // ===========================================
 
-  console.log('✅ Created payment methods');
+  await prisma.paymentMethod.create({
+    data: {
+      userId: students[0].id,
+      type: PaymentType.CARD,
+      last4: "4242",
+      brand: "Visa",
+      expiryMonth: 12,
+      expiryYear: 2025,
+      isDefault: true,
+    },
+  });
 
-  // ===================================
-  // Create Payment History
-  // ===================================
-  await Promise.all([
-    prisma.paymentHistory.create({
-      data: {
-        amount: 89.99,
-        currency: 'USD',
-        status: 'COMPLETED',
-        transactionId: 'TXN-2024-001',
-        paymentMethod: 'Visa ending in 4242',
-        paidAt: new Date('2024-09-01'),
+  await prisma.paymentMethod.create({
+    data: {
+      userId: students[1].id,
+      type: PaymentType.PAYPAL,
+      isDefault: true,
+    },
+  });
+
+  console.log("✅ Created payment methods");
+
+  // ===========================================
+  // PAYMENT HISTORY
+  // ===========================================
+
+  await prisma.paymentHistory.create({
+    data: {
+      userId: students[0].id,
+      courseId: course1.id,
+      amount: 79.99,
+      currency: "USD",
+      status: PaymentStatus.COMPLETED,
+      transactionId: "txn_1234567890",
+      paymentMethod: "Visa ending in 4242",
+      paidAt: new Date("2024-01-20"),
+    },
+  });
+
+  await prisma.paymentHistory.create({
+    data: {
+      userId: students[1].id,
+      courseId: course1.id,
+      amount: 79.99,
+      currency: "USD",
+      status: PaymentStatus.COMPLETED,
+      transactionId: "txn_0987654321",
+      paymentMethod: "PayPal",
+      paidAt: new Date("2024-01-25"),
+    },
+  });
+
+  await prisma.paymentHistory.create({
+    data: {
+      userId: students[2].id,
+      courseId: course2.id,
+      amount: 59.99,
+      currency: "USD",
+      status: PaymentStatus.COMPLETED,
+      transactionId: "txn_1122334455",
+      paymentMethod: "Credit Card",
+      paidAt: new Date("2024-02-05"),
+    },
+  });
+
+  await prisma.paymentHistory.create({
+    data: {
+      userId: students[0].id,
+      courseId: course3.id,
+      amount: 99.99,
+      currency: "USD",
+      status: PaymentStatus.COMPLETED,
+      transactionId: "txn_5544332211",
+      paymentMethod: "Visa ending in 4242",
+      paidAt: new Date("2024-02-15"),
+    },
+  });
+
+  console.log("✅ Created payment history");
+
+  // ===========================================
+  // NOTIFICATIONS
+  // ===========================================
+
+  await prisma.notification.createMany({
+    data: [
+      {
         userId: students[0].id,
-        courseId: course1.id
-      }
-    }),
-    prisma.paymentHistory.create({
-      data: {
-        amount: 99.99,
-        currency: 'USD',
-        status: 'COMPLETED',
-        transactionId: 'TXN-2024-002',
-        paymentMethod: 'Mastercard ending in 5555',
-        paidAt: new Date('2024-09-15'),
-        userId: students[1].id,
-        courseId: course2.id
-      }
-    }),
-    prisma.paymentHistory.create({
-      data: {
-        amount: 79.99,
-        currency: 'USD',
-        status: 'COMPLETED',
-        transactionId: 'TXN-2024-003',
-        paymentMethod: 'PayPal',
-        paidAt: new Date('2024-08-20'),
-        userId: students[2].id,
-        courseId: course3.id
-      }
-    })
-  ]);
-
-  console.log('✅ Created payment history');
-
-  // ===================================
-  // Create Notifications
-  // ===================================
-  await Promise.all([
-    prisma.notification.create({
-      data: {
-        type: 'COURSE_ENROLLMENT',
-        title: 'Welcome to the course!',
-        message: 'You have successfully enrolled in Complete Web Development Bootcamp 2024',
+        type: NotificationType.COURSE_ENROLLMENT,
+        title: "Welcome to React & Next.js Course!",
+        message:
+          "You've successfully enrolled in Complete React & Next.js Development Course. Start learning now!",
         isRead: true,
+        createdAt: new Date("2024-01-20"),
+      },
+      {
         userId: students[0].id,
-        data: { courseId: course1.id }
-      }
-    }),
-    prisma.notification.create({
-      data: {
-        type: 'CERTIFICATE_EARNED',
-        title: 'Congratulations! 🎉',
-        message: 'You have earned a certificate for completing UI/UX Design Masterclass',
+        type: NotificationType.CHAPTER_COMPLETED,
+        title: "Chapter Completed!",
+        message: "Great job! You've completed 'Understanding useState Hook'",
+        isRead: true,
+        createdAt: new Date(),
+      },
+      {
+        userId: students[0].id,
+        type: NotificationType.COURSE_ENROLLMENT,
+        title: "Enrolled in Data Science Course",
+        message:
+          "You've enrolled in Python for Data Science & Machine Learning",
         isRead: false,
+        createdAt: new Date("2024-02-15"),
+      },
+      {
+        userId: students[1].id,
+        type: NotificationType.PAYMENT_SUCCESS,
+        title: "Payment Successful",
+        message:
+          "Your payment of $79.99 for React & Next.js Course has been processed",
+        isRead: true,
+        createdAt: new Date("2024-01-25"),
+      },
+      {
         userId: students[2].id,
-        data: { courseId: course3.id, certificateId: 'CERT-2024-001' }
-      }
-    }),
-    prisma.notification.create({
-      data: {
-        type: 'NEW_REVIEW',
-        title: 'New review on your course',
-        message: 'Someone left a 5-star review on your course',
+        type: NotificationType.CERTIFICATE_EARNED,
+        title: "🎉 Certificate Earned!",
+        message:
+          "Congratulations! You've earned a certificate for completing UI/UX Design Masterclass",
         isRead: false,
+        createdAt: new Date("2024-03-01"),
+      },
+      {
         userId: instructor1.id,
-        data: { courseId: course1.id }
-      }
-    })
-  ]);
+        type: NotificationType.NEW_STUDENT,
+        title: "New Student Enrolled",
+        message:
+          "Alice Wonder has enrolled in your Complete React & Next.js Development Course",
+        isRead: false,
+        createdAt: new Date("2024-01-20"),
+      },
+      {
+        userId: instructor1.id,
+        type: NotificationType.NEW_REVIEW,
+        title: "New Review Received",
+        message: "Alice Wonder left a 5-star review on your course!",
+        isRead: false,
+        createdAt: new Date(),
+      },
+      {
+        userId: instructor2.id,
+        type: NotificationType.COURSE_PUBLISHED,
+        title: "Course Published Successfully",
+        message: "Your course 'UI/UX Design Masterclass' is now live!",
+        isRead: true,
+        createdAt: new Date("2024-02-01"),
+      },
+    ],
+  });
 
-  console.log('✅ Created notifications');
+  console.log("✅ Created notifications");
 
-  console.log('🎉 Seed completed successfully!');
-  console.log('\n📊 Summary:');
-  console.log(`- Users: ${await prisma.user.count()}`);
-  console.log(`- Categories: ${await prisma.category.count()}`);
-  console.log(`- Courses: ${await prisma.course.count()}`);
-  console.log(`- Sections: ${await prisma.section.count()}`);
-  console.log(`- Chapters: ${await prisma.chapter.count()}`);
-  console.log(`- Enrollments: ${await prisma.enrollment.count()}`);
-  console.log(`- Reviews: ${await prisma.courseReview.count()}`);
-  console.log(`- Certificates: ${await prisma.certificate.count()}`);
-  console.log(`- Payment History: ${await prisma.paymentHistory.count()}`);
-  console.log(`- Notifications: ${await prisma.notification.count()}`);
-  console.log('\n🔐 Test Credentials:');
-  console.log('Admin: admin@lms.com / password123');
-  console.log('Instructor: john.doe@instructor.com / password123');
-  console.log('Student: alice@student.com / password123');
+  // ===========================================
+  // SUMMARY
+  // ===========================================
+
+  const userCount = await prisma.user.count();
+  const courseCount = await prisma.course.count();
+  const enrollmentCount = await prisma.enrollment.count();
+  const reviewCount = await prisma.courseReview.count();
+
+  console.log("\n🎉 Seed completed successfully!");
+  console.log("========================");
+  console.log(`👥 Users: ${userCount}`);
+  console.log(`📚 Courses: ${courseCount}`);
+  console.log(`📝 Enrollments: ${enrollmentCount}`);
+  console.log(`⭐ Reviews: ${reviewCount}`);
+  console.log("========================\n");
+
+  console.log("📧 Test User Credentials (Clerk IDs):");
+  console.log("------------------------");
+  console.log("Admin: user_admin_clerk_001");
+  console.log("Instructor 1: user_clerk_instructor_001");
+  console.log("Instructor 2: user_clerk_instructor_002");
+  console.log("Instructor 3: user_clerk_instructor_003");
+  console.log("Student 1: user_clerk_student_001");
+  console.log("Student 2: user_clerk_student_002");
+  console.log("------------------------\n");
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error during seed:', e);
-    process.exit(1);
+    console.error("❌ Error during seed:");
+    console.error(e);
   })
   .finally(async () => {
     await prisma.$disconnect();

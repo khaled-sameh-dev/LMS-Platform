@@ -57,6 +57,7 @@ const SearchInput = ({
       triggerSuggestions(trimmed)
         .unwrap()
         .then(async (data) => {
+          console.log(data);
           const suggestionsList = data || [];
           dispatch(handleSearchSuccess(suggestionsList));
         })
@@ -112,16 +113,16 @@ const SearchInput = ({
     const { type, id } = suggestion;
 
     switch (type) {
-      case "course":
-        router.push(`/courses/${id}`);
+      case "Course":
+        router.push(`/browse/${id}`);
         break;
-      case "category":
+      case "Category":
         // For category, go to browse page with category param
         router.push(`/browse?category=${encodeURIComponent(id)}`);
         break;
-      case "instructor":
+      case "Instructor":
         // Go to instructor profile page
-        router.push(`/instructors/${id}`);
+        router.push(`/user/${id}`);
         break;
     }
 

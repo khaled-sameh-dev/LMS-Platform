@@ -955,7 +955,7 @@ export interface Course {
   previewVideo?: string;
   level: CourseLevel;
   price: number;
-  currency: string;
+  currency: CURRENCY;
   language: string;
   rating: number;
   reviewsCount: number;
@@ -976,6 +976,7 @@ export interface Course {
   category: Category;
   sections?: Section[];
   totalChapters?: number;
+  totalDuration?: number;
   enrollments: Enrollment[];
 }
 
@@ -1008,10 +1009,14 @@ export interface Enrollment {
   chapterProgress?: ChapterProgress[];
 }
 
+export interface EnrollmentWithProgress extends Enrollment {
+  totalChapters?: number;
+  completedChapters?: number;
+  progressPercentage?: number;
+}
+
 export interface SearchSuggestion {
-  type: "course" | "category" | "instructor";
+  type: "Course" | "Category" | "Instructor";
   id: string;
-  title: string;
-  subtitle?: string;
-  thumbnail?: string;
+  value: Category | Course | User;
 }

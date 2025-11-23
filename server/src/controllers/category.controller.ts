@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import { prisma } from "../config/db";
 import { json } from "body-parser";
+import { Prisma } from "../generated/prisma";
+import { prisma } from "../config/db";
 
 const categoryController = {
   getCategories: async (req: Request, res: Response) => {

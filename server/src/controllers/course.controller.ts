@@ -140,11 +140,12 @@ export const courseController = {
 
       if (q) {
         where.OR = [
-          { title: { contains: q as string, mode: "insensitive" } },
-          { description: { contains: q as string, mode: "insensitive" } },
-          { tags: { has: q as string } },
+          { title: { contains: String(q), mode: "insensitive" } },
+          { description: { contains: String(q), mode: "insensitive" } },
+          { tags: { has: String(q) } },
         ];
       }
+
 
       const total = await prisma.course.count({ where });
 

@@ -1,16 +1,32 @@
 import { SignUp } from "@clerk/nextjs";
-import {dark} from "@clerk/themes"
+import { dark } from "@clerk/themes";
 const SignupComponent = () => {
   return (
     <SignUp
+      signInUrl="/auth/login"
       appearance={{
-        theme: dark,
+        variables: {
+          colorPrimary: "oklch(61.415% 0.13274 237.902)",
+          colorText: "#ffffff",
+          colorBackground: "#25262f",
+          colorInputBackground: "#1b1c22",
+          colorInputText: "#ffffff",
+          borderRadius: "8px",
+          fontFamily: "Inter, sans-serif",
+        },
         elements: {
-          card: "bg-secondry-blue w-full",
-          footer: {
-            background: "25262f",
-            "& > div:nth-child(1)": "bg-secondry-blue",
-          },
+          rootBox: "w-full max-w-md mx-auto",
+          card: "!shadow-xl !rounded-2xl border border-white",
+          socialButtonsBlockButton: "!border !border-dirty-grey !text-white",
+
+          dividerLine: "!bg-dirty-grey",
+          dividerText: "!text-white/50 !text-sm",
+
+          formFieldInput:
+            "rounded-xl  !border !border-dirty-grey px-4 py-2 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition",
+
+          formButtonPrimary:
+            "bg-blue-600 text-white rounded-xl py-2.5 text-sm font-medium hover:bg-blue-700 transition",
         },
       }}
     />

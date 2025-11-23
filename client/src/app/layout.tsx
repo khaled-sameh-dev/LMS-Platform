@@ -32,39 +32,45 @@ export default function RootLayout({
     hasClerkKey && clerkKey.startsWith("pk_") && !clerkKey.includes("dummy");
   const shouldEnableClerk = enableClerk && looksValid;
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary-blue`}
-      >
-        <ClerkProvider
-          appearance={{
-            variables: {
-              colorPrimary: "#5b8def", // main-blue
-              colorBackground: "#1b1c22", // primary-blue
-              colorInputBackground: "#25262f", // secondary-blue
-              colorInputText: "#ffffff",
-              colorText: "#ffffff",
-
-              colorTextSecondary: "#6e6e6e", // dirty-grey
-            },
-            elements: {
-              formButtonPrimary: "bg-main-blue hover:bg-main-blue/80",
-              card: "bg-secondary-blue border border-white/10",
-              headerTitle: "text-white",
-              headerSubtitle: "text-dirty-grey",
-              socialButtonsBlockButton:
-                "bg-primary-blue border-white/10 text-white hover:bg-white/5",
-              socialButtonsProviderIcon: "text-white",
-
-              formFieldInput: "bg-primary-blue border-white/10 text-white",
-              footerActionLink: "text-main-blue hover:text-main-blue/80",
-            },
-          }}
+    <ClerkProvider
+      dynamic
+      appearance={{
+        layout: {
+          unsafe_disableDevelopmentModeWarnings: true,
+        },
+        // variables: {
+        //   colorPrimary: "#5b8def",
+        //   colorBackground: "#1b1c22",
+        //   colorInputBackground: "#25262f",
+        //   colorInputText: "#ffffff",
+        //   colorText: "#ffffff",
+        //   colorTextSecondary: "#6e6e6e", // dirty-grey
+        // },
+        // elements: {
+        //   rootBox: "",
+        //   cardBox: "border! border-dirty-grey!",
+        //   formButtonPrimary: "bg-main-blue hover:bg-main-blue/80",
+        //   headerTitle: "text-white",
+        //   headerSubtitle: "text-dirty-grey",
+        //   socialButtonsBlockButton:
+        //     "bg-secondry-blue! text-white! hover:scale-105! hover:bg-none!",
+        //   socialButtonsProviderIcon__github: "text-white!",
+        //   formFieldInput:
+        //     "bg-secondry-blue! border! border-white/50! text-white!",
+        //   footerActionLink: "text-main-blue hover:text-main-blue/80",
+        //   userButtonPopoverMain: "bg-secondry-blue!",
+        //   userPreview: "border-b! border-main-blue/50!",
+        // },
+      }}
+    >
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-primary-blue`}
         >
           <Providers>{children}</Providers>
-        </ClerkProvider>
-        <Footer />
-      </body>
-    </html>
+          <Footer />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

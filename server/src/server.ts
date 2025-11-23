@@ -7,6 +7,13 @@ import config from "./config";
 import bodyParser from "body-parser";
 import { connectDB } from "./config/db";
 import router from "./routes";
+import { clerkMiddleware, createClerkClient } from "@clerk/express";
+import { clerkWebhook } from "./routes/webhooks/clerk";
+import {
+  ClerkExpressWithAuth,
+  createClerkExpressRequireAuth,
+  createClerkExpressWithAuth,
+} from "@clerk/clerk-sdk-node";
 
 const app = express();
 
@@ -17,6 +24,20 @@ app.use(cors());
 app.use(morgan("common"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+const clerkClient = createClerkClient({
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY!,
+});
+
+app.use(clerkMiddleware({ clerkClient }));
+
+app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
+
+app.use(
+  "/webhooks/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhook
+);
 
 app.use("/api/v1/", router);
 

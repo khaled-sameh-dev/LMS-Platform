@@ -135,6 +135,22 @@
   animation: shimmer 2s infinite;
 }
 
+.clerk-container {
+  all: initial;
+  font-family: inherit;
+}
+
+/* allow Tailwind utilities to work inside */
+.clerk-container * {
+  all: unset;
+  display: revert;
+}
+
+.clerk-reset,
+.clerk-reset * {
+  all: revert;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

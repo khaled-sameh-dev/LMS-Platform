@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
+    "db:seed": "prisma db seed",
     "build": "rimraf ./dist && npx tsc",
     "start": "npm run build && ts-node dist/server.js",
     "dev": "npm run build && concurrently \"npx tsc -w\" \"nodemon\" "
@@ -16,7 +17,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^6.18.0",
+    "@clerk/backend": "^2.23.0",
+    "@clerk/clerk-sdk-node": "^4.13.23",
+    "@clerk/express": "^1.7.52",
+    "@prisma/client": "6.19",
+    "at": "^0.0.1-security",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.0",
     "cors": "^2.8.5",
@@ -29,6 +34,7 @@
     "mongoose": "^8.19.2",
     "morgan": "^1.10.1",
     "stripe": "^19.3.0",
+    "svix": "^1.81.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -36,11 +42,11 @@
     "@types/express": "^5.0.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
-    "@types/node": "^24.9.1",
+    "@types/node": "^24.10.1",
     "concurrently": "^9.2.1",
     "cpx": "^1.5.0",
     "nodemon": "^3.1.10",
-    "prisma": "^6.18.0",
+    "prisma": "6.19",
     "rimraf": "^6.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

@@ -26,10 +26,7 @@ export const SearchDropdown = forwardRef<HTMLDivElement, SearchDropdownProps>(
       selectedIndex,
     } = useSelector((state: RootState) => state.search);
 
-    useEffect(() => {
-      console.log(query);
-      console.log(suggestions);
-    }, [suggestions, query]);
+   
 
     return (
       <motion.div

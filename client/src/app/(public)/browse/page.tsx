@@ -52,16 +52,13 @@ function Page() {
   const [page, setPage] = useState(1);
   const [lastBatchCount, setLastBatchCount] = useState(0);
 
-  useEffect(() =>{
-    console.log(firstPageCourses)
-  } , [firstPageCourses])
+  
 
   useEffect(() => {
     setCourses(firstPageCourses || []);
     setPage(1);
     setLastBatchCount((firstPageCourses as any[])?.length || 0);
   }, [firstPageCourses]);
-
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
@@ -114,22 +111,6 @@ function Page() {
       </div>
 
       {/* Category Filter */}
-      {/* <div className="w-full mb-10 mx-auto">
-        {categoriesLoading && <CategoryFilterSkeleton />}
-             {!categoriesLoading && categoriesError && (
-          <div className="text-red-400 text-sm font-semibold text-center">
-            Failed to load categories. Please try again later.
-          </div>
-        )}
-        {!categoriesLoading && !categories && (
-          <div className="text-dirty-grey text-sm font-semibold text-center">
-            No Categories Found : {categoriesError}
-          </div>
-        )}
-        {categories && categories.length > 0 && (
-          <CategoryFilter categories={categories} />
-        )}
-      </div> */}
       <div className=" mb-10 mx-auto">
         {categoriesLoading && <CategoryFilterSkeleton />}
 

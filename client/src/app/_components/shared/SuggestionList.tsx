@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import { SuggestionItem } from "./SuggestionItem";
 import { SearchSuggestion } from "@/types";
+import { useEffect } from "react";
 
 interface SuggestionsListProps {
   suggestions: SearchSuggestion[];
@@ -22,6 +23,9 @@ export const SuggestionsList = ({
   onHover,
   onSearch,
 }: SuggestionsListProps) => {
+
+   
+
   return (
     <div>
       <div className="py-2">
