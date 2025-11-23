@@ -24,13 +24,19 @@ export const SuggestionItem = ({
   onHover,
 }: SuggestionItemProps) => {
   const text = useMemo(() => {
-    const value =
-      suggestion.type === "Category"
-        ? suggestion.value.name
-        : suggestion.type === "Course"
-          ? suggestion.value.title
-          : suggestion.value.firstName + " " + suggestion.value.lastName;
-    return value;
+    let text = "";
+    switch (suggestion.type) {
+      case "Category":
+        text = suggestion.value.name;
+      case "Course":
+        text = suggestion.value.title;
+      case "Instructor":
+        text = suggestion.value.firstName + " " + suggestion.value.lastName;
+      default:
+        text = "";
+    }
+
+    return text;
   }, [suggestion]);
 
   useEffect(() => {

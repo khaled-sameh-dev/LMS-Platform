@@ -1018,5 +1018,5 @@ export interface EnrollmentWithProgress extends Enrollment {
 export interface SearchSuggestion {
   type: "Course" | "Category" | "Instructor";
   id: string;
-  value: Category | Course | User;
+  value: any;
 }
