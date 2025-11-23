@@ -1,7 +1,7 @@
 import { Router } from "express";
 import paymentController from "../controllers/payment.controller";
 import { requireAuth } from "../middleware/clerkAuth";
-import { UserRole } from "../generated/prisma";
+import { UserRole } from "@prisma/client";
 
 const router = Router();
 
@@ -38,9 +38,5 @@ router.get(
  */
 router.post("/enroll-free", requireAuth(), paymentController.enrollFreeCourse);
 
-/**
- * Stripe webhook (no Clerk auth)
- */
-router.post("/webhook", paymentController.handleWebhook);
 
 export default router;

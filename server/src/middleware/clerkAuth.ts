@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { UserRole } from "../generated/prisma";
 import { clerkClient, getAuth, verifyToken } from "@clerk/express";
 import { prisma } from "../config/db";
+import { UserRole } from "@prisma/client";
 
 declare global {
   namespace Express {

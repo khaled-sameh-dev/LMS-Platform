@@ -1,6 +1,4 @@
 import type { Request, Response } from "express";
-import { json } from "body-parser";
-import { Prisma } from "../generated/prisma";
 import { prisma } from "../config/db";
 
 const categoryController = {

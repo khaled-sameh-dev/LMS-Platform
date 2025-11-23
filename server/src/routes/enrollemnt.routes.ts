@@ -195,7 +195,8 @@ import {
   getUserEnrollments,
   unenrollFromCourse,
 } from "../controllers/enrollments.controller";
-import { UserRole } from "../generated/prisma";
+import { UserRole } from "@prisma/client";
+
 
 const router = Router();
 

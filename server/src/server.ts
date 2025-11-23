@@ -9,11 +9,7 @@ import { connectDB } from "./config/db";
 import router from "./routes";
 import { clerkMiddleware, createClerkClient } from "@clerk/express";
 import { clerkWebhook } from "./routes/webhooks/clerk";
-import {
-  ClerkExpressWithAuth,
-  createClerkExpressRequireAuth,
-  createClerkExpressWithAuth,
-} from "@clerk/clerk-sdk-node";
+import handleStripeWebhook from "./routes/webhooks/stripe";
 
 const app = express();
 
@@ -31,7 +27,11 @@ const clerkClient = createClerkClient({
 
 app.use(clerkMiddleware({ clerkClient }));
 
-app.use("/api/payments/webhook", express.raw({ type: "application/json" }));
+app.use(
+  "/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
 
 app.use(
   "/webhooks/clerk",

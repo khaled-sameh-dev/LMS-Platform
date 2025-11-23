@@ -1,4 +1,5 @@
-import { PrismaClient } from '../generated/prisma';
+import { PrismaClient } from "@prisma/client";
+
 const prisma = new PrismaClient();
 
 export async function getCourseDetails(id: string, userId?: string) {
@@ -18,12 +19,12 @@ export async function getCourseDetails(id: string, userId?: string) {
       category: {
         select: { id: true, name: true, slug: true, icon: true },
       },
-      
+
       sections: {
-        orderBy: { order: 'asc' },
+        orderBy: { order: "asc" },
         include: {
           chapters: {
-            orderBy: { order: 'asc' },
+            orderBy: { order: "asc" },
             select: {
               id: true,
               title: true,
@@ -36,7 +37,7 @@ export async function getCourseDetails(id: string, userId?: string) {
         },
       },
       reviews: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: 5,
         select: {
           id: true,
