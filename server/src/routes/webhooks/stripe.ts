@@ -23,9 +23,9 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
 
-        const { courseId, userId, instructorId } = session.metadata!;
+        const { courseId, userId, clerkUserId } = session.metadata!;
 
-        if (!userId) {
+        if (!clerkUserId || !userId) {
           return res.status(403).json({
             success: false,
             message: "Unauthorized access",
@@ -101,6 +101,9 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
       default:
         console.log(`Unhandled event type: ${event.type}`);
     }
+
+    console.log("res", res);
+    console.log("finish");
 
     return res.status(200).json({ received: true });
   } catch (error: any) {

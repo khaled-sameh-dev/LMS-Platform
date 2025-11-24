@@ -55,7 +55,7 @@ const baseQuery: BaseQueryFn<
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api/v1",
     prepareHeaders: (headers) => {
       if (token) headers.set("Authorization", `Bearer ${token}`);
-      console.log("token" , token)
+      console.log("token", token);
 
       return headers;
     },
@@ -167,11 +167,6 @@ export const api = createApi({
       ],
     }),
 
-    // getUserEnrollments: builder.query<Enrollment[], void>({
-    //   query: () => `/enrollments/my-enrollments`,
-    //   providesTags: ["Enrollments"],
-    // }),
-
     getUserEnrollments: builder.query<EnrollmentWithProgress[], void>({
       query: () => `/enrollments/my-enrollments`,
       providesTags: ["Enrollments"],
@@ -179,6 +174,10 @@ export const api = createApi({
         // Backend already calculates progress, just return it
         return response;
       },
+    }),
+
+    checkEnrollment: builder.query<{ isEnrolled: boolean }, string>({
+      query: (courseId) => `/enrollments/check/${courseId}`,
     }),
 
     // ============================================
@@ -332,6 +331,7 @@ export const {
   useGetEnrollmentStatusQuery,
   useLazyGetEnrollmentStatusQuery,
   useGetUserEnrollmentsQuery,
+  useCheckEnrollmentQuery,
 
   // Progress
   useGetCourseProgressQuery,

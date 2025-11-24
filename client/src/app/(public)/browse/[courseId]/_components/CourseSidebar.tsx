@@ -87,7 +87,7 @@ const CourseSidebar = ({
           <div className="space-y-3">
             <Button
               onClick={onContinueLearning}
-              className="w-full bg-success hover:bg-success/80 text-white py-6 text-lg font-semibold"
+              className="w-full bg-main-blue hover:bg-main-blue/80 text-white py-6 text-lg font-semibold"
             >
               <PlayCircle className="w-5 h-5 mr-2" />
               Continue Learning

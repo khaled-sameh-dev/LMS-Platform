@@ -103,7 +103,7 @@ const PaymentSuccessPage = () => {
             {verification.courseId && (
               <Button
                 onClick={() => router.push(`/learn/course/${verification.courseId}`)}
-                className="w-full bg-success hover:bg-success/80 text-white py-6"
+                className="w-full bg-main-blue hover:bg-main-blue/50  text-white py-6"
               >
                 Start Learning
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -111,9 +111,9 @@ const PaymentSuccessPage = () => {
             )}
 
             <Button
-              onClick={() => router.push("/student/courses")}
-              variant="outline"
-              className="w-full border-white/10 text-white"
+              onClick={() => router.push("/student/my-courses")}
+              
+              className="w-full border border-white/10 text-white"
             >
               View My Courses
             </Button>

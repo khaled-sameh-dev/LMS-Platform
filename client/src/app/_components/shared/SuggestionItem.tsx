@@ -24,19 +24,14 @@ export const SuggestionItem = ({
   onHover,
 }: SuggestionItemProps) => {
   const text = useMemo(() => {
-    let text = "";
-    switch (suggestion.type) {
-      case "Category":
-        text = suggestion.value.name;
-      case "Course":
-        text = suggestion.value.title;
-      case "Instructor":
-        text = suggestion.value.firstName + " " + suggestion.value.lastName;
-      default:
-        text = "";
-    }
+    const value =
+      suggestion.type === "Category"
+        ? suggestion.value.name
+        : suggestion.type === "Course"
+          ? suggestion.value.title
+          : suggestion.value.firstName + " " + suggestion.value.lastName;
 
-    return text;
+    return value;
   }, [suggestion]);
 
   useEffect(() => {
@@ -58,7 +53,7 @@ export const SuggestionItem = ({
     >
       <SuggesstionIcon
         type={suggestion.type}
-        // avatarUrl={suggestion.id.avatarUrl}
+        avatarUrl={suggestion.value.avatarUrl}
       />
 
       <div className="flex-1 min-w-0">

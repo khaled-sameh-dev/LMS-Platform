@@ -9,7 +9,9 @@ import { prisma } from "../config/db";
 export const getCourseProgress = async (req: Request, res: Response) => {
   try {
     const { courseId } = req.params;
-    const userId = req.auth?.userId; // From auth middleware
+    const userId = req.auth?.userId; 
+
+    console.log("user id" , userId)
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
@@ -45,6 +47,8 @@ export const getCourseProgress = async (req: Request, res: Response) => {
       },
     });
 
+    console.log("enrollment" , enrollment)
+
     if (!enrollment) {
       return res.status(404).json({ message: "Enrollment not found" });
     }
@@ -63,6 +67,7 @@ export const getCourseProgress = async (req: Request, res: Response) => {
     // Calculate progress percentage
     const progressPercentage =
       totalChapters > 0 ? (completedChapters / totalChapters) * 100 : 0;
+
 
     // Update enrollment progress
     await prisma.enrollment.update({

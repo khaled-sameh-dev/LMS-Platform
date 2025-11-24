@@ -1,7 +1,6 @@
 "use client";
 
 import SignupComponent from "@/app/_components/shared/SignupComponent";
-import { SignUp } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 
 const SignUpPage = () => {

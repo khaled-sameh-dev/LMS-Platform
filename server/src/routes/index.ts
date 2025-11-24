@@ -4,9 +4,9 @@ import courseRoutes from "./course.routes";
 import categoryRoutes from "./category.routes";
 import searchRoutes from "./search.routes";
 import enrollmentRoutes from "./enrollemnt.routes";
-import progressRoutes from "./progrss";
-import paymentRoutes from "./payment.route";
-import reviewRoutes from "./reviews";
+import progressRoutes from "./progrss.routes";
+import paymentRoutes from "./payment.routes";
+import reviewRoutes from "./reviews.routes";
 
 const router = express.Router();
 

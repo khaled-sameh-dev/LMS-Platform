@@ -103,8 +103,6 @@ export const courseController = {
     try {
       const { id: courseId } = req.params;
 
-      console.log("-----------", req.params);
-
       if (!courseId) {
         return res.status(400).json({ error: "Missing courseId parameter" });
       }

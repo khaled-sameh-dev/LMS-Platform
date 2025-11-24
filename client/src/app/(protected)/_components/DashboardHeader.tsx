@@ -92,7 +92,7 @@ const ProtectedHeader = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/courses?q=${encodeURIComponent(searchQuery)}`;
+      window.location.href = `/browse?q=${encodeURIComponent(searchQuery)}`;
     }
   };
 
@@ -182,7 +182,7 @@ const ProtectedHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-80 bg-secondary-blue border-white/10"
+                className="w-80 bg-secondry-blue border-white/10"
               >
                 <DropdownMenuLabel className="text-white">
                   Notifications
@@ -252,7 +252,7 @@ const ProtectedHeader = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                className="w-56 bg-secondary-blue border-white/10"
+                className="w-56 bg-secondry-blue border-white/10"
               >
                 <DropdownMenuLabel className="text-white">
                   My Account

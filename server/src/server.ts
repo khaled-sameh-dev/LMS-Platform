@@ -13,6 +13,18 @@ import handleStripeWebhook from "./routes/webhooks/stripe";
 
 const app = express();
 
+app.post(
+  "/api/v1/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
+
+app.post(
+  "/api/v1/webhooks/clerk",
+  express.raw({ type: "application/json" }),
+  clerkWebhook
+);
+
 app.use(express.json());
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
@@ -26,18 +38,6 @@ const clerkClient = createClerkClient({
 });
 
 app.use(clerkMiddleware({ clerkClient }));
-
-app.use(
-  "/webhooks/stripe",
-  express.raw({ type: "application/json" }),
-  handleStripeWebhook
-);
-
-app.use(
-  "/webhooks/clerk",
-  express.raw({ type: "application/json" }),
-  clerkWebhook
-);
 
 app.use("/api/v1/", router);
 

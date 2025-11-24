@@ -22,8 +22,10 @@ declare global {
 export const requireAuth = (allowedRoles?: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // Get authenticated user ID from Clerk
+      console.log("header " , req.headers.authorization)
       const { userId } = getAuth(req);
+    console.log("user id" , userId)
+
       if (!userId) {
         return res.status(401).json({ error: "Authentication required" });
       }
@@ -41,6 +43,7 @@ export const requireAuth = (allowedRoles?: UserRole[]) => {
       const email = user.emailAddresses?.[0]?.emailAddress;
       const role = (user.publicMetadata.role as UserRole) || "STUDENT";
 
+
       // If authorization is required
       if (allowedRoles && !allowedRoles.includes(role)) {
         return res.status(403).json({ error: "Permission denied" });
@@ -48,10 +51,10 @@ export const requireAuth = (allowedRoles?: UserRole[]) => {
 
       const prismaUser = await prisma.user.findUnique({
         where: {
-          clerkId: userId,
+          clerkId: user.id,
         },
       });
-
+    console.log("prisma" , prismaUser)
       if (!prismaUser) {
         return res.status(404).json({ message: "User Not Found" });
       }
@@ -64,6 +67,7 @@ export const requireAuth = (allowedRoles?: UserRole[]) => {
         userRole: role,
       };
 
+
       next();
     } catch (err) {
       console.error("Auth Error:", err);
@@ -71,7 +75,6 @@ export const requireAuth = (allowedRoles?: UserRole[]) => {
     }
   };
 };
-
 /**
  * OPTIONAL AUTH — doesn’t throw error if not logged in
  */
@@ -97,84 +100,3 @@ export const optionalAuth = async (
 
   next();
 };
-
-// import { Request, Response, NextFunction } from "express";
-// import { getAuth, clerkClient } from "@clerk/express";
-// import { UserRole } from "../generated/prisma";
-
-// declare global {
-//   namespace Express {
-//     interface Request {
-//       auth?: {
-//         userId: string;
-//         userEmail: string;
-//         userRole?: UserRole;
-//       };
-//     }
-//   }
-// }
-
-// export const requireAuth = (allowedRoles?: string[]) => {
-//   return async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//       // Clerk middleware must be loaded globally for this to work
-//       const auth = getAuth(req);
-
-//       if (!auth || !auth.userId) {
-//         return res.status(401).json({ error: "Authentication required" });
-//       }
-
-//       const user = await clerkClient.users.getUser(auth.userId);
-
-//       if (!user) {
-//         return res.status(401).json({ error: "Unauthorized User" });
-//       }
-
-//       const email =
-//         user.emailAddresses?.[0]?.emailAddress || "";
-//       const role =
-//         (user.publicMetadata.role as UserRole) || "STUDENT";
-
-//       // Role-based access
-//       if (allowedRoles && !allowedRoles.includes(role)) {
-//         return res.status(403).json({ error: "Permission denied" });
-//       }
-
-//       // Attach to request
-//       req.auth = {
-//         userId: auth.userId,
-//         userEmail: email,
-//         userRole: role,
-//       };
-
-//       next();
-//     } catch (err) {
-//       console.error("Auth Error:", err);
-//       return res.status(500).json({ error: "Internal server error" });
-//     }
-//   };
-// };
-
-// export const optionalAuth = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   const auth = getAuth(req);
-
-//   if (auth?.userId) {
-//     try {
-//       const user = await clerkClient.users.getUser(auth.userId);
-
-//       req.auth = {
-//         userId: auth.userId,
-//         userEmail: user.emailAddresses?.[0]?.emailAddress || "",
-//         userRole: (user.publicMetadata.role as UserRole) || "STUDENT",
-//       };
-//     } catch (err) {
-//       // Ignore errors for optional auth
-//     }
-//   }
-
-//   next();
-// };

@@ -4,6 +4,7 @@ import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+
 const paymentController = {
   /**
    * Create a Stripe checkout session for course enrollment
@@ -12,19 +13,20 @@ const paymentController = {
     try {
       const { courseId } = req.body;
 
-      const clerkUserId = req.auth?.userId;
+      const userId = req.auth?.userId;
+      const clerkUserId = req.auth?.clerkId;
       const userEmail = req.auth?.userEmail;
 
-      if (!clerkUserId) {
-        return res.status(401).json({
+      if (!userId) {
+        return res.status(403).json({
           success: false,
-          message: "Unauthorized - Please log in",
+          message: "User id is required",
         });
       }
 
       // Find user by Clerk ID
       const user = await prisma.user.findUnique({
-        where: { clerkId: clerkUserId },
+        where: { id: userId },
         select: {
           id: true,
           email: true,
@@ -114,13 +116,13 @@ const paymentController = {
         mode: "payment",
         payment_method_types: ["card"],
         success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.FRONTEND_URL}/courses/${course.slug}`,
+        cancel_url: `${process.env.FRONTEND_URL}/browse/${course.id}`,
         customer_email: userEmail || user.email,
         client_reference_id: user.id,
         metadata: {
           courseId,
           userId: user.id,
-          clerkUserId,
+          clerkUserId: clerkUserId!,
           instructorId: course.instructorId,
           instructorAmount: instructorAmount.toString(),
           platformFee: platformFee.toString(),
@@ -165,17 +167,184 @@ const paymentController = {
   /**
    * Verify payment and create enrollment
    */
+  // verifyPayment: async (req: Request, res: Response) => {
+  //   try {
+  //     const { sessionId } = req.body;
+  //     const userId = req.auth?.userId;
+  //     const clerkUserId = req.auth?.clerkId;
+
+  //   console.log("user" , userId)
+  //   console.log("clerk" , clerkUserId)
+  //   console.log("session" , sessionId)
+  //     if (!userId) {
+  //       return res.status(403).json({
+  //         success: false,
+  //         message: "User id is required",
+  //       });
+  //     }
+
+  //     if (!clerkUserId) {
+  //       return res.status(401).json({
+  //         success: false,
+  //         message: "Unauthorized User",
+  //       });
+  //     }
+
+  //     if (!sessionId) {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: "Session ID is required",
+  //       });
+  //     }
+
+  //     // Retrieve session from Stripe
+  //     const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+  //     if (session.payment_status !== "paid") {
+  //       return res.status(400).json({
+  //         success: false,
+  //         message: "Payment not completed",
+  //       });
+  //     }
+
+  //     const { courseId, instructorId, instructorAmount, platformFee } =
+  //       session.metadata!;
+
+  //     // Find user
+  //     const user = await prisma.user.findUnique({
+  //       where: { clerkId: clerkUserId },
+  //     });
+
+  //     if (!user || user.id !== userId) {
+  //       return res.status(403).json({
+  //         success: false,
+  //         message: "Unauthorized access",
+  //       });
+  //     }
+
+  //     if (!courseId) {
+  //       return res.status(404).json({
+  //         success: false,
+  //         message: "Course Not Found",
+  //       });
+  //     }
+
+  //     // Check if enrollment already exists
+  //     const existingEnrollment = await prisma.enrollment.findUnique({
+  //       where: {
+  //         userId_courseId: {
+  //           userId,
+  //           courseId,
+  //         },
+  //       },
+  //     });
+
+  //     if (existingEnrollment) {
+  //       return res.status(200).json({
+  //         success: true,
+  //         message: "Already enrolled",
+  //         enrollment: existingEnrollment,
+  //       });
+  //     }
+
+  //     // Create enrollment and payment history in a transaction
+  //     const result = await prisma.$transaction(async (tx) => {
+  //       // Create enrollment
+  //       const enrollment = await tx.enrollment.create({
+  //         data: {
+  //           userId,
+  //           courseId,
+  //           enrolledAt: new Date(),
+  //         },
+  //         include: {
+  //           course: {
+  //             select: {
+  //               title: true,
+  //               thumbnail: true,
+  //               slug: true,
+  //             },
+  //           },
+  //         },
+  //       });
+
+  //       // Create payment history
+  //       const paymentHistory = await tx.paymentHistory.create({
+  //         data: {
+  //           userId,
+  //           courseId,
+  //           amount: session.amount_total! / 100, // Convert from cents
+  //           currency: session.currency?.toUpperCase() || "USD",
+  //           status: "COMPLETED",
+  //           transactionId: session.payment_intent as string,
+  //           paymentMethod: "CARD",
+  //           paidAt: new Date(),
+  //         },
+  //       });
+
+  //       // Update course students count
+  //       await tx.course.update({
+  //         where: { id: courseId },
+  //         data: {
+  //           studentsCount: {
+  //             increment: 1,
+  //           },
+  //         },
+  //       });
+
+  //       // Create notification for student
+  //       await tx.notification.create({
+  //         data: {
+  //           userId,
+  //           type: "COURSE_ENROLLMENT",
+  //           title: "Successfully Enrolled",
+  //           message: `You have successfully enrolled in ${enrollment.course.title}`,
+  //           data: {
+  //             courseId,
+  //             courseName: enrollment.course.title,
+  //             courseSlug: enrollment.course.slug,
+  //           },
+  //         },
+  //       });
+
+  //       // Create notification for instructor
+  //       // await tx.notification.create({
+  //       //   data: {
+  //       //     userId: instructorId,
+  //       //     type: "NEW_STUDENT",
+  //       //     title: "New Student Enrollment",
+  //       //     message: `A new student has enrolled in your course`,
+  //       //     data: {
+  //       //       courseId,
+  //       //       studentId: userId,
+  //       //     },
+  //       //   },
+  //       // });
+
+  //       return { enrollment, paymentHistory };
+  //     });
+
+  //     return res.status(200).json({
+  //       success: true,
+  //       message: "Payment verified and enrollment created",
+  //       enrollment: result.enrollment,
+  //     });
+  //   } catch (error: any) {
+  //     console.error("Verify payment error:", error);
+
+  //     return res.status(500).json({
+  //       success: false,
+  //       message: "Failed to verify payment",
+  //       error:
+  //         process.env.NODE_ENV === "development" ? error.message : undefined,
+  //     });
+  //   }
+  // },
+
   verifyPayment: async (req: Request, res: Response) => {
     try {
       const { sessionId } = req.body;
-      const clerkUserId = req.auth?.userId;
 
-      if (!clerkUserId) {
-        return res.status(401).json({
-          success: false,
-          message: "Unauthorized User",
-        });
-      }
+      console.log("session id", sessionId);
 
       if (!sessionId) {
         return res.status(400).json({
@@ -184,9 +353,12 @@ const paymentController = {
         });
       }
 
-      // Retrieve session from Stripe
+      // Retrieve session from Stripe to get metadata
       const session = await stripe.checkout.sessions.retrieve(sessionId);
 
+      console.log("session", session);
+
+      // Check if payment was successful
       if (session.payment_status !== "paid") {
         return res.status(400).json({
           success: false,
@@ -194,34 +366,70 @@ const paymentController = {
         });
       }
 
-      const { courseId, userId, instructorId, instructorAmount, platformFee } =
-        session.metadata!;
+      // Extract metadata from Stripe session
+      const {
+        courseId,
+        userId: metadataUserId,
+        clerkUserId: metadataClerkUserId,
+      } = session.metadata || {};
 
-      // Find user
-      const user = await prisma.user.findUnique({
-        where: { clerkId: clerkUserId },
-      });
-
-      if (!user || user.id !== userId) {
+      console.log("user", metadataUserId);
+      console.log("clerk", metadataClerkUserId);
+      // Validate authenticated user
+      if (!metadataUserId) {
         return res.status(403).json({
           success: false,
-          message: "Unauthorized access",
+          message: "User id is required",
+        });
+      }
+
+      if (!metadataClerkUserId) {
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized User",
         });
       }
 
       if (!courseId) {
         return res.status(404).json({
           success: false,
-          message: "Course Not Found",
+          message: "Course ID not found in payment session",
         });
       }
 
-      // Check if enrollment already exists
+      // Verify course exists
+      const course = await prisma.course.findUnique({
+        where: { id: courseId },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          thumbnail: true,
+        },
+      });
+
+      if (!course) {
+        return res.status(404).json({
+          success: false,
+          message: "Course not found",
+        });
+      }
+
+      // Check if enrollment already exists (webhook might have created it)
       const existingEnrollment = await prisma.enrollment.findUnique({
         where: {
           userId_courseId: {
-            userId,
+            userId: metadataUserId,
             courseId,
+          },
+        },
+        include: {
+          course: {
+            select: {
+              title: true,
+              thumbnail: true,
+              slug: true,
+            },
           },
         },
       });
@@ -231,6 +439,7 @@ const paymentController = {
           success: true,
           message: "Already enrolled",
           enrollment: existingEnrollment,
+          alreadyEnrolled: true,
         });
       }
 
@@ -239,7 +448,7 @@ const paymentController = {
         // Create enrollment
         const enrollment = await tx.enrollment.create({
           data: {
-            userId,
+            userId: metadataUserId,
             courseId,
             enrolledAt: new Date(),
           },
@@ -254,19 +463,31 @@ const paymentController = {
           },
         });
 
-        // Create payment history
-        const paymentHistory = await tx.paymentHistory.create({
-          data: {
-            userId,
-            courseId,
-            amount: session.amount_total! / 100, // Convert from cents
-            currency: session.currency?.toUpperCase() || "USD",
-            status: "COMPLETED",
+        // Check if payment history already exists (webhook might have created it)
+        const existingPayment = await tx.paymentHistory.findFirst({
+          where: {
             transactionId: session.payment_intent as string,
-            paymentMethod: "CARD",
-            paidAt: new Date(),
           },
         });
+
+        let paymentHistory;
+        if (!existingPayment) {
+          // Create payment history
+          paymentHistory = await tx.paymentHistory.create({
+            data: {
+              userId: metadataUserId,
+              courseId,
+              amount: session.amount_total! / 100, // Convert from cents
+              currency: session.currency?.toUpperCase() || "USD",
+              status: "COMPLETED",
+              transactionId: session.payment_intent as string,
+              paymentMethod: "CARD",
+              paidAt: new Date(),
+            },
+          });
+        } else {
+          paymentHistory = existingPayment;
+        }
 
         // Update course students count
         await tx.course.update({
@@ -281,7 +502,7 @@ const paymentController = {
         // Create notification for student
         await tx.notification.create({
           data: {
-            userId,
+            userId: metadataUserId,
             type: "COURSE_ENROLLMENT",
             title: "Successfully Enrolled",
             message: `You have successfully enrolled in ${enrollment.course.title}`,
@@ -293,20 +514,6 @@ const paymentController = {
           },
         });
 
-        // Create notification for instructor
-        // await tx.notification.create({
-        //   data: {
-        //     userId: instructorId,
-        //     type: "NEW_STUDENT",
-        //     title: "New Student Enrollment",
-        //     message: `A new student has enrolled in your course`,
-        //     data: {
-        //       courseId,
-        //       studentId: userId,
-        //     },
-        //   },
-        // });
-
         return { enrollment, paymentHistory };
       });
 
@@ -314,9 +521,18 @@ const paymentController = {
         success: true,
         message: "Payment verified and enrollment created",
         enrollment: result.enrollment,
+        paymentHistory: result.paymentHistory,
       });
     } catch (error: any) {
       console.error("Verify payment error:", error);
+
+      // Handle specific Stripe errors
+      if (error.type === "StripeInvalidRequestError") {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid session ID",
+        });
+      }
 
       return res.status(500).json({
         success: false,
@@ -327,6 +543,7 @@ const paymentController = {
     }
   },
 
+  // Optional: Check enrollment status
   /**
    * Get payment history for a user
    */

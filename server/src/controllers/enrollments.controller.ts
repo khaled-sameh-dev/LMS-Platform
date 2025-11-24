@@ -157,8 +157,6 @@ export const getEnrollmentStatus = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Course ID is required" });
     }
 
-    console.log("user id", userId);
-
     const enrollment = await prisma.enrollment.findUnique({
       where: {
         userId_courseId: {
@@ -198,7 +196,7 @@ export const getUserEnrollments = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
- 
+
     const enrollments = await prisma.enrollment.findMany({
       where: { userId },
       include: {
@@ -463,5 +461,53 @@ export const getEnrollmentStats = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get enrollment stats error:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const checkEnroll = async (req: Request, res: Response) => {
+  try {
+    const { courseId } = req.params;
+    const userId = req.auth?.clerkId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (!courseId) {
+      return res.status(400).json({ message: "Course ID is required" });
+    }
+
+    // Find user in your database
+    const user = await prisma.user.findUnique({
+      where: { clerkId: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Check if enrollment exists
+    const enrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: {
+          userId: user.id,
+          courseId,
+        },
+      },
+    });
+
+    return res.json({
+      success: true,
+      isEnrolled: !!enrollment,
+    });
+  } catch (error) {
+    console.error("Check enrollment error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check enrollment",
+    });
   }
 };

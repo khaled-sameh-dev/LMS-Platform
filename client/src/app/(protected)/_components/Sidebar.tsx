@@ -487,7 +487,7 @@ export default function SimplifiedSidebar() {
       {
         label: "Browse Courses",
         icon: GraduationCap,
-        path: "/courses",
+        path: "/browse",
       },
     ];
   };
@@ -672,8 +672,8 @@ export default function SimplifiedSidebar() {
                 w-full flex items-center gap-3 px-3 py-3 rounded-lg
                 transition-all duration-200 group relative
                 ${
-                  isActive
-                    ? "bg-accent text-white"
+                 isActive
+                    ? "bg-main-blue text-primary-blue shadow-lg"
                     : "text-dirty-grey hover:bg-primary-blue hover:text-white"
                 }
               `}

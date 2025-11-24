@@ -1,10 +1,3 @@
-// import { SignIn } from "@clerk/nextjs";
-
-// const SigninComponent = () => {
-//   return <SignIn signUpUrl="/auth/sign-up" />;
-// };
-
-// export default SigninComponent;
 
 import { SignIn } from "@clerk/nextjs";
 
@@ -12,7 +5,7 @@ const SigninComponent = () => {
   return (
     <div>
       <SignIn
-        signUpUrl="/auth/sign-up"
+        signUpUrl="/auth/register"
         appearance={{
           variables: {
             colorPrimary: "oklch(61.415% 0.13274 237.902)",

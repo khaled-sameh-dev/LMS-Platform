@@ -1,0 +1,265 @@
+"use client";
+
+import {
+  useGetCategoriesQuery,
+  useGetCoursesQuery,
+  useLazyGetCoursesQuery,
+} from "@/store/api";
+import { AnimatePresence, motion } from "framer-motion";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import CoursesGridSkeleton from "../../_components/skeletons/CoursesGridSkeleton";
+import CourseCard from "../../_components/CourseCard";
+import { Course } from "@/types";
+
+const CoursesSection = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    searchParams.get("category")
+  );
+  const [currentQuery, setCurrentQuery] = useState<string | null>(
+    searchParams.get("q")
+  );
+
+  const limit = 12;
+  const baseParams = useMemo(() => {
+    const params: any = { page: 1, limit };
+    if (selectedCategory) params.category = selectedCategory;
+    if (currentQuery) params.q = currentQuery;
+    return params;
+  }, [selectedCategory, currentQuery]);
+  const {
+    isLoading,
+    data: firstPageCourses = [],
+    error: coursesError,
+  } = useGetCoursesQuery(baseParams);
+  const [fetchMore, { isFetching: loadingMore }] = useLazyGetCoursesQuery();
+
+  const { data: categories } = useGetCategoriesQuery();
+
+  const [courses, setCourses] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [lastBatchCount, setLastBatchCount] = useState(0);
+
+  useEffect(() => {
+    if (!firstPageCourses) return;
+
+    setCourses((prev) => {
+      const same =
+        prev.length === firstPageCourses.length &&
+        prev.every((c, i) => c.id === firstPageCourses[i].id);
+
+      return same ? prev : firstPageCourses;
+    });
+
+    setPage(1);
+    setLastBatchCount(firstPageCourses.length);
+
+    console.log(firstPageCourses)
+  }, [firstPageCourses]);
+
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    const queryParam = searchParams.get("q");
+
+    if (categoryParam !== selectedCategory) {
+      setSelectedCategory(categoryParam);
+    }
+
+    if (queryParam !== currentQuery) {
+      setCurrentQuery(queryParam);
+    }
+  }, [searchParams.toString()]);
+
+  const handleCategoryChange = (categoryId: string | null) => {
+    if (categoryId) {
+      router.push(`?category=${categoryId}`, { scroll: false });
+    } else {
+      router.push("/browse", { scroll: false });
+    }
+  };
+
+  const handleLoadMore = async () => {
+    const nextPage = page + 1;
+    const params: any = { page: nextPage, limit };
+    if (selectedCategory) params.category = selectedCategory;
+    if (currentQuery) params.q = currentQuery;
+    const res: any = await fetchMore(params)
+      .unwrap()
+      .catch(() => []);
+    if (Array.isArray(res)) {
+      setCourses((prev) => [...prev, ...res]);
+      setPage(nextPage);
+      setLastBatchCount(res.length);
+    }
+  };
+
+  return (
+    <div className="mx-auto  py-8 mb-10">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedCategory || "all"}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">
+              {selectedCategory
+                ? `${categories?.find((c) => c.id === selectedCategory)!.name} Courses`
+                : "All Courses"}
+            </h2>
+
+            {!isLoading && (
+              <motion.p
+                key={courses.length} // re-triggers when courses change
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="text-dirty-grey text-sm"
+              >
+                {courses.length} course{courses.length !== 1 ? "s" : ""}{" "}
+                available
+              </motion.p>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <AnimatePresence mode="wait">
+        {/* Loading State */}
+        {isLoading && (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <CoursesGridSkeleton />
+          </motion.div>
+        )}
+
+        {!isLoading && coursesError && (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="text-center py-10 text-red-400"
+          >
+            <h3 className="text-xl font-semibold mb-2">
+              Failed to load courses
+            </h3>
+            <p className="text-dirty-grey">
+              Please refresh the page or try again later.
+            </p>
+          </motion.div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && courses.length === 0 && (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="flex flex-col items-center justify-center py-20 px-4"
+          >
+            <div className="w-24 h-24 bg-secondry-blue rounded-full flex items-center justify-center mb-6">
+              <svg
+                className="w-12 h-12 text-dirty-grey"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                />
+              </svg>
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">
+              No Courses Found
+            </h3>
+            <p className="text-dirty-grey text-center max-w-md mb-6">
+              We couldn't find any courses in this category. Try exploring other
+              categories or check back later.
+            </p>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleCategoryChange(null)}
+              className="px-6 py-3 cursor-pointer bg-secondry-blue hover:bg-secondry-blue/50 text-white rounded-lg font-semibold transition-colors"
+            >
+              View All Courses
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* Courses Grid */}
+        {!isLoading && courses.length > 0 && (
+          <motion.div
+            key="grid"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            <motion.div
+              className="grid gap-4 sm:gap-5 md:gap-6 lg:gap-7 xl:gap-8
+          grid-cols-1
+          min-[480px]:grid-cols-2
+          lg:grid-cols-3
+          xl:grid-cols-4
+          2xl:grid-cols-4"
+              key={selectedCategory}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+            >
+              {courses.map((course: Course) => (
+                <motion.div
+                  key={course.id}
+                  variants={{
+                    hidden: { y: 20, opacity: 0 },
+                    visible: { y: 0, opacity: 1 },
+                  }}
+                  whileHover={{ y: -6 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <CourseCard
+                    course={course}
+                    onClick={() => router.push(`/browse/${course.id}`)}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Load More Button */}
+      {!isLoading && lastBatchCount === limit && (
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={handleLoadMore}
+            className="px-8 py-3 bg-secondry-blue hover:bg-secondry-blue/50 text-white rounded-lg font-semibold transition-colors border border-white/10 hover:border-accent"
+          >
+            {loadingMore ? "Loading..." : "Load More Courses"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CoursesSection;
