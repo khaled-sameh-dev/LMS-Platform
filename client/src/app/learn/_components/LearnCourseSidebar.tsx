@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Course, ChapterType } from "@/types";
 import { useGetCourseByIdQuery, useGetCourseProgressQuery } from "@/store/api";
+import { useUser } from "@clerk/nextjs";
 
 const LearnCourseSidebar = () => {
   const router = useRouter();
@@ -28,12 +29,16 @@ const LearnCourseSidebar = () => {
   const currentChapterId = searchParams.get("chapterId");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const { isLoaded, isSignedIn, user } = useUser();
+
   const params = useParams();
   const courseId = params.courseId as string;
 
   const { data: course } = useGetCourseByIdQuery(courseId);
 
-  const { data: progress } = useGetCourseProgressQuery(courseId);
+  const { data: progress } = useGetCourseProgressQuery(courseId, {
+    skip: !isLoaded || !isSignedIn,
+  });
 
   const getChapterIcon = (type: ChapterType) => {
     switch (type) {
