@@ -22,9 +22,7 @@ declare global {
 export const requireAuth = (allowedRoles?: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("header " , req.headers.authorization)
       const { userId } = getAuth(req);
-    console.log("user id" , userId)
 
       if (!userId) {
         return res.status(401).json({ error: "Authentication required" });

@@ -8,15 +8,15 @@ export const clerkWebhook = async (req: Request, res: Response) => {
   
   // Verify signature to ensure it really came from Clerk
   const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
-
+  
   let event: any;
   try {
     event = wh.verify(
-      JSON.stringify(payload),
+      payload,
       headers as Record<string, string>
     );
   } catch (err) {
-    return res.status(400).json({ error: "Invalid signature" });
+    return res.status(400).json({ error: "Invalid signature" , err });
   }
 
   const evt = event.type;

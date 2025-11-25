@@ -102,9 +102,6 @@ const handleStripeWebhook = async (req: Request, res: Response) => {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
-    console.log("res", res);
-    console.log("finish");
-
     return res.status(200).json({ received: true });
   } catch (error: any) {
     console.error("Webhook handler error:", error);
