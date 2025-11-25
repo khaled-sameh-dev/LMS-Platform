@@ -16,7 +16,7 @@ export const clerkWebhook = async (req: Request, res: Response) => {
       headers as Record<string, string>
     );
   } catch (err) {
-    return res.status(400).json({ error: "Invalid signature" });
+    return res.status(400).json({ error: "Invalid signature"  , err});
   }
 
   const evt = event.type;
