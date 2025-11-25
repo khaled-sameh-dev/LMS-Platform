@@ -158,8 +158,7 @@ const paymentController = {
       return res.status(500).json({
         success: false,
         message: "Failed to create checkout session",
-        error:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
+        error
       });
     }
   },
