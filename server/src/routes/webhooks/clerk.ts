@@ -12,7 +12,7 @@ export const clerkWebhook = async (req: Request, res: Response) => {
   let event: any;
   try {
     event = wh.verify(
-      JSON.stringify(payload),
+      payload,
       headers as Record<string, string>
     );
   } catch (err) {
