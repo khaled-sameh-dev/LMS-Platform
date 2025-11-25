@@ -21,7 +21,6 @@ import {
   Download,
   BookOpen,
 } from "lucide-react";
-import ReactPlayer from "react-player";
 import VideoPlayer from "./VideoPlayer";
 import { useUser } from "@clerk/nextjs";
 
