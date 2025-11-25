@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ReactPlayer from "react-player";
 import VideoPlayer from "./VideoPlayer";
+import { useUser } from "@clerk/nextjs";
 
 interface ChapterViewerProps {
   courseId: string;
@@ -34,6 +35,8 @@ const ChapterViewer = ({ courseId, chapterId }: ChapterViewerProps) => {
   const [watchDuration, setWatchDuration] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
 
+    const { isLoaded, isSignedIn, user } = useUser();
+
   // Queries
   const { data: course } = useGetCourseByIdQuery(courseId);
   const { data: chapter, isLoading: chapterLoading } = useGetChapterByIdQuery({
@@ -41,7 +44,9 @@ const ChapterViewer = ({ courseId, chapterId }: ChapterViewerProps) => {
     chapterId,
   });
   const { data: enrollmentStatus } = useGetEnrollmentStatusQuery(courseId);
-  const { data: progress } = useGetCourseProgressQuery(courseId);
+   const { data: progress } = useGetCourseProgressQuery(courseId, {
+    skip: !isLoaded || !isSignedIn,
+  });
 
   // Mutation
   const [updateProgress, { isLoading: updating }] =
@@ -197,18 +202,6 @@ const ChapterViewer = ({ courseId, chapterId }: ChapterViewerProps) => {
           <div className="bg-secondry-blue rounded-lg p-6 mb-6">
             {chapter.type === "VIDEO" && chapter.videoUrl && (
               <div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
-                {/* <video
-                  src={chapter.videoUrl}
-                  controls
-                  className="w-full h-full"
-                  onTimeUpdate={(e) => {
-                    const video = e.target as HTMLVideoElement;
-                    setWatchDuration(video.currentTime / 60); // Convert to minutes
-                  }}
-                  onEnded={() => handleMarkComplete()}
-                >
-                  Your browser does not support the video tag.
-                </video> */}
 
                 <VideoPlayer
                   chapter={chapter}

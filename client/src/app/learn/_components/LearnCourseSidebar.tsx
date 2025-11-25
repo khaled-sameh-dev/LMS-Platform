@@ -67,7 +67,7 @@ const LearnCourseSidebar = () => {
   const totalChapters = useMemo(() => {
     if (course) {
       return (
-        course.sections?.reduce(
+        course?.sections?.reduce(
           (acc, section) => acc + section.chapters.length,
           0
         ) || 0
@@ -111,93 +111,103 @@ const LearnCourseSidebar = () => {
               </h3>
 
               <Accordion type="multiple" className="space-y-2">
-                {course.sections?.map((section) => {
-                  const completedInSection =
-                    progress?.chapterProgress?.filter(
-                      (cp) =>
-                        section.chapters.some((ch) => ch.id === cp.chapterId) &&
-                        cp.isCompleted
-                    ).length || 0;
+                {!course.sections && (
+                  <h3 className="text-sm font-bold text-white mb-4">
+                    No Content Yet
+                  </h3>
+                )}
 
-                  return (
-                    <AccordionItem
-                      key={section.id}
-                      value={section.id}
-                      className="border border-white/10 rounded-lg bg-primary-blue"
-                    >
-                      <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-t-lg hover:no-underline">
-                        <div className="text-left flex-1">
-                          <h4 className="font-semibold text-white text-sm mb-1">
-                            {section.title}
-                          </h4>
-                          <div className="flex items-center gap-2 text-xs text-dirty-grey">
-                            <span>
-                              {completedInSection}/{section.chapters.length}
-                            </span>
-                            <span>•</span>
-                            <span>{section.chapters.length} lessons</span>
+                {course?.sections &&
+                  course.sections?.map((section) => {
+                    const completedInSection =
+                      progress?.chapterProgress?.filter(
+                        (cp) =>
+                          section.chapters.some(
+                            (ch) => ch.id === cp.chapterId
+                          ) && cp.isCompleted
+                      ).length || 0;
+
+                    return (
+                      <AccordionItem
+                        key={section.id}
+                        value={section.id}
+                        className="border border-white/10 rounded-lg bg-primary-blue"
+                      >
+                        <AccordionTrigger className="px-4 py-3 hover:bg-white/5 rounded-t-lg hover:no-underline">
+                          <div className="text-left flex-1">
+                            <h4 className="font-semibold text-white text-sm mb-1">
+                              {section.title}
+                            </h4>
+                            <div className="flex items-center gap-2 text-xs text-dirty-grey">
+                              <span>
+                                {completedInSection}/{section.chapters.length}
+                              </span>
+                              <span>•</span>
+                              <span>{section.chapters.length} lessons</span>
+                            </div>
                           </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent className="px-2 pb-2">
-                        <div className="space-y-1">
-                          {section.chapters.map((chapter) => {
-                            const Icon = getChapterIcon(chapter.type);
-                            const isCompleted = isChapterCompleted(chapter.id);
-                            const isActive = currentChapterId === chapter.id;
+                        </AccordionTrigger>
+                        <AccordionContent className="px-2 pb-2">
+                          <div className="space-y-1">
+                            {section.chapters.map((chapter) => {
+                              const Icon = getChapterIcon(chapter.type);
+                              const isCompleted = isChapterCompleted(
+                                chapter.id
+                              );
+                              const isActive = currentChapterId === chapter.id;
 
-                            return (
-                              <button
-                                key={chapter.id}
-                                onClick={() =>
-                                  router.push(
-                                    `/learn/course/${courseId}?chapterId=${chapter.id}`
-                                  )
-                                }
-                                className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                                  isActive
-                                    ? "bg-main-blue text-white"
-                                    : isCompleted
-                                      ? "bg-success/10 text-white hover:bg-success/20"
-                                      : "text-dirty-grey hover:bg-white/5 hover:text-white"
-                                }`}
-                              >
-                                {isCompleted ? (
-                                  <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
-                                ) : (
-                                  <Icon
-                                    className={`w-5 h-5 flex-shrink-0 ${
-                                      isActive ? "text-white" : ""
-                                    }`}
-                                  />
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <p
-                                    className={`text-sm font-medium line-clamp-2 ${
-                                      isActive ? "text-white" : ""
-                                    }`}
-                                  >
-                                    {chapter.title}
-                                  </p>
-                                  {chapter.duration > 0 && (
-                                    <p className="text-xs text-dirty-grey mt-0.5">
-                                      {formatDuration(chapter.duration)}
-                                    </p>
+                              return (
+                                <button
+                                  key={chapter.id}
+                                  onClick={() =>
+                                    router.push(
+                                      `/learn/course/${courseId}?chapterId=${chapter.id}`
+                                    )
+                                  }
+                                  className={`w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+                                    isActive
+                                      ? "bg-main-blue text-white"
+                                      : isCompleted
+                                        ? "bg-success/10 text-white hover:bg-success/20"
+                                        : "text-dirty-grey hover:bg-white/5 hover:text-white"
+                                  }`}
+                                >
+                                  {isCompleted ? (
+                                    <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
+                                  ) : (
+                                    <Icon
+                                      className={`w-5 h-5 flex-shrink-0 ${
+                                        isActive ? "text-white" : ""
+                                      }`}
+                                    />
                                   )}
-                                </div>
-                                {chapter.isFree && (
-                                  <Badge className="bg-success/20 text-success text-xs">
-                                    Free
-                                  </Badge>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
+                                  <div className="flex-1 min-w-0">
+                                    <p
+                                      className={`text-sm font-medium line-clamp-2 ${
+                                        isActive ? "text-white" : ""
+                                      }`}
+                                    >
+                                      {chapter.title}
+                                    </p>
+                                    {chapter.duration > 0 && (
+                                      <p className="text-xs text-dirty-grey mt-0.5">
+                                        {formatDuration(chapter.duration)}
+                                      </p>
+                                    )}
+                                  </div>
+                                  {chapter.isFree && (
+                                    <Badge className="bg-success/20 text-success text-xs">
+                                      Free
+                                    </Badge>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
               </Accordion>
             </div>
           </div>
