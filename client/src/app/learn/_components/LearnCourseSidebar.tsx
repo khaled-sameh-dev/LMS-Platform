@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Accordion,
@@ -59,13 +59,18 @@ const LearnCourseSidebar = () => {
     );
   };
 
-  if (!course) return null;
+  const totalChapters = useMemo(() => {
+    if (course) {
+      return (
+        course.sections?.reduce(
+          (acc, section) => acc + section.chapters.length,
+          0
+        ) || 0
+      );
+    }
+  }, [course]);
 
-  const totalChapters =
-    course.sections?.reduce(
-      (acc, section) => acc + section.chapters.length,
-      0
-    ) || 0;
+  if (!course) return null;
 
   return (
     <>

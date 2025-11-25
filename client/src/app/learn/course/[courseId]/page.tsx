@@ -11,7 +11,7 @@ import {
 import { Loader2, Lock, PlayCircle } from "lucide-react";
 import ChapterViewer from "../../_components/ChapterViewer";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 const Page = () => {
   const params = useParams();
@@ -44,9 +44,12 @@ const Page = () => {
     skip: !isLoaded || !isSignedIn || !enrollmentStatus?.isEnrolled,
   });
 
-   // Get first chapter if no chapter selected
-  const firstChapter = course!.sections?.[0]?.chapters?.[0];
-
+  // Get first chapter if no chapter selected
+  const firstChapter = useMemo(() => {
+    if (course) {
+      return course.sections?.[0]?.chapters?.[0];
+    }
+  }, [course]);
 
   // Redirect to first chapter
   useEffect(() => {
@@ -184,7 +187,6 @@ const Page = () => {
     );
   }
 
- 
   // If no chapters available
   if (!firstChapter && !chapterId) {
     return (
