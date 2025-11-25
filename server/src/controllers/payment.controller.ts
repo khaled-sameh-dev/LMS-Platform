@@ -17,6 +17,8 @@ const paymentController = {
       const clerkUserId = req.auth?.clerkId;
       const userEmail = req.auth?.userEmail;
 
+      res.status(202).json({userId , clerkUserId})
+
       if (!userId) {
         return res.status(403).json({
           success: false,
