@@ -96,20 +96,27 @@ const ChapterViewer = ({ courseId, chapterId }: ChapterViewerProps) => {
   };
 
   // Navigation helpers
-  const getAllChapters = () => {
-    return (
-      course?.sections?.flatMap((section) =>
-        section.chapters.map((ch) => ({ ...ch, sectionId: section.id }))
-      ) || []
-    );
-  };
+ const getAllChapters = useCallback(() => {
+    return course?.sections?.length
+      ? course.sections.flatMap((section) =>
+          (section?.chapters ?? []).map((ch) => ({
+            ...ch,
+            sectionId: section.id,
+          }))
+        )
+      : [];
+  }, [course]);
 
-  const allChapters = getAllChapters();
+  const allChapters = getAllChapters() || [];
+
   const currentIndex = allChapters.findIndex((ch) => ch.id === chapterId);
+
+  
   const previousChapter =
     currentIndex > 0 ? allChapters[currentIndex - 1] : null;
+
   const nextChapter =
-    currentIndex < allChapters.length - 1
+    currentIndex >= 0 && currentIndex < allChapters.length - 1
       ? allChapters[currentIndex + 1]
       : null;
 
@@ -119,7 +126,7 @@ const ChapterViewer = ({ courseId, chapterId }: ChapterViewerProps) => {
     router.push(`/learn/course/${courseId}?chapterId=${targetChapterId}`);
   };
 
-   const formatDuration = (minutes: number) => {
+  const formatDuration = (minutes: number) => {
     if (minutes < 60) return `${Math.round(minutes)}m`;
     const hours = Math.floor(minutes / 60);
     const mins = Math.round(minutes % 60);
